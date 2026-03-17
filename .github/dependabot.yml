@@ -1,0 +1,23 @@
+version: 2
+updates:
+  # Enable version updates for npm
+  - package-ecosystem: "npm"
+    # Look for a `package.json` and `package-lock.json` in the root
+    directory: "/"
+    # Check for updates once a week
+    schedule:
+      interval: "weekly"
+    # Assign PRs to the main developer
+    reviewers:
+      - "keithdba"
+    # Auto-merge if possible/desired (usually configured via repo policies)
+    # Target branches and version rules can be expanded here
+    open-pull-requests-limit: 10
+  
+  # Keep GitHub Actions up to date
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "keithdba"

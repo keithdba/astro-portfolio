@@ -15,5 +15,9 @@
     "@astrojs/markdown-remark": "^7.0.0",
     "astro": "^6.0.5",
     "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@vitest/ui": "^4.1.0",
+    "vitest": "^4.1.0"
   }
 }
