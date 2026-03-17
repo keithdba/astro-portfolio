@@ -2,6 +2,10 @@
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
+  # Enforce canonical domain: redirect www to non-www
+  RewriteCond %{HTTP_HOST} ^www\.macdaly\.com [NC]
+  RewriteRule ^(.*)$ https://macdaly.com/$1 [L,R=301]
+
   # Force HTTPS
   RewriteCond %{HTTPS} off
   RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
@@ -12,4 +16,7 @@
 
   # Tell Apache to look for index.html implicitly
   DirectoryIndex index.html
+
+  # Custom 404 Error Page
+  # ErrorDocument 404 /404.html
 </IfModule>

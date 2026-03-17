@@ -1,4 +1,4 @@
-# GoDaddy Deployment Guide
+# GoDaddy Deployment Guide — macdaly.com
 
 This guide provides step-by-step instructions on how to build and deploy your Astro-based portfolio to a GoDaddy shared hosting environment.
 
@@ -59,7 +59,7 @@ Create a file named `.htaccess` inside the `dist/` folder with the following con
 5. Navigate to your primary web directory, usually `public_html`.
    * *If you are hosting this on a sub-domain or add-on domain, navigate to that specific folder (e.g., `public_html/portfolio`).*
 6. **Upload** the *contents* of your local `dist/` folder directly into `public_html/`. 
-   > **Critical:** Do not upload the `dist` folder itself. Upload the files and folders *inside* `dist` (like `index.html`, `/professional/`, `/automotive/`, and `.htaccess`).
+   > **Critical:** Do not upload the `dist` folder itself. Upload the files and folders *inside* `dist` (like `index.html`, `/pro/`, `/auto/`, and `.htaccess`).
 7. Once uploaded, visit your domain to verify the site is live.
 
 ### Method B: FTP Client (FileZilla, Cyberduck)
@@ -72,7 +72,7 @@ Create a file named `.htaccess` inside the `dist/` folder with the following con
 
 ## 4. Post-Deployment Verification
 
-1. Navigate to your root domain (e.g., `https://yourdomain.com`). Ensure the SSL certificate is active (HTTPS).
-2. Click on the **Enterprise Architect** gateway portal. Verify the URL is exactly `https://yourdomain.com/professional` (no `.html` or trailing slash).
-3. Click on the **Automotive Enthusiast** gateway portal. Verify the URL is exactly `https://yourdomain.com/automotive`.
+1. Navigate to `https://macdaly.com`. Ensure the SSL certificate is active (HTTPS).
+2. Click on the **Professional** gateway link. Verify the URL is `https://macdaly.com/pro`.
+3. Click on the **Automotive** gateway link. Verify the URL is `https://macdaly.com/auto`.
 4. Run a Lighthouse test via Chrome DevTools on the live production URL to confirm the 90+ mobile score threshold is maintained on GoDaddy's network.
