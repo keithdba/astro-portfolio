@@ -1,0 +1,71 @@
+{
+  "profile": {
+    "name": "RedApe",
+    "title": "Executive Director, Cloud Platform Engineering",
+    "summary": "Forward-thinking technology executive with 20+ years of experience architecting resilient, high-performance cloud ecosystems. Proven track record of scaling enterprise engineering teams, leading digital transformation initiatives, and delivering mission-critical platforms to market.",
+    "contact": {
+      "email": "contact@redape.example.com",
+      "linkedin": "https://linkedin.com/in/redape"
+    }
+  },
+  "roles": [
+    {
+      "id": "role-1",
+      "title": "Executive Director, Cloud Platform Engineering",
+      "company": "Enterprise Corporation",
+      "duration": "2020 - Present",
+      "description": "Lead global platform engineering strategies, orchestrating cloud-native transformations and establishing standardized architectures that accelerate developer velocity.",
+      "highlights": [
+        "Architected multi-region Kubernetes deployments scaling to millions of daily active users.",
+        "Reduced infrastructure operational costs by 35% through advanced observability and auto-scaling.",
+        "Grew and mentored an organization of 150+ elite software engineers."
+      ]
+    },
+    {
+      "id": "role-2",
+      "title": "Senior Director of Architecture",
+      "company": "FinTech Innovations",
+      "duration": "2015 - 2020",
+      "description": "Spearheaded the design of next-generation distributed transaction systems, focusing on low-latency, high-throughput architectures.",
+      "highlights": [
+        "Pioneered the corporate transition from monolithic legacy systems to microservices.",
+        "Delivered a real-time event-streaming platform processing 50B+ events monthly.",
+        "Authored the technical blueprint for SOC2 compliance across all engineering disciplines."
+      ]
+    },
+    {
+      "id": "role-3",
+      "title": "Principal Architect / Tech Lead",
+      "company": "Tech Solutions Inc.",
+      "duration": "2004 - 2015",
+      "description": "Early foundational engineer focused on building robust back-end systems. Transitioned from individual contributor to defining enterprise-wide patterns.",
+      "highlights": [
+        "Led the migration to public cloud infrastructure.",
+        "Designed and implemented zero-downtime deployment pipelines."
+      ]
+    }
+  ],
+  "speaking": [
+    {
+      "id": "speak-1",
+      "event": "Digital Banking Accelerate",
+      "date": "October 2024",
+      "topic": "The Future of Cloud-Native Banking Architectures",
+      "location": "Las Vegas, NV"
+    },
+    {
+      "id": "speak-2",
+      "event": "Cloud Native Summit",
+      "date": "May 2023",
+      "topic": "Scaling Kubernetes in Highly Regulated Environments",
+      "location": "San Francisco, CA"
+    },
+    {
+      "id": "speak-3",
+      "event": "Enterprise Tech Con",
+      "date": "November 2021",
+      "topic": "Building Resilient Engineering Cultures",
+      "location": "Virtual"
+    }
+  ]
+}

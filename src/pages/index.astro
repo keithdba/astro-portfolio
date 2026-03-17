@@ -1,0 +1,214 @@
+---
+import '../styles/global.css';
+---
+
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>RedApe | Gateway</title>
+</head>
+<body class="gateway-body">
+	<main class="split-container">
+		<!-- Enterprise Architect Pane -->
+		<a href="/professional" class="split-pane pane-professional">
+			<div class="overlay"></div>
+			<div class="content">
+				<div class="icon-wrapper">
+					<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+				</div>
+				<h2>Enterprise Architect</h2>
+				<p>Clean. Minimalist. Authoritative.</p>
+				<span class="btn-ghost">View Profile</span>
+			</div>
+		</a>
+
+		<!-- Automotive Enthusiast Pane -->
+		<a href="/automotive" class="split-pane pane-automotive">
+			<div class="overlay"></div>
+			<div class="content">
+				<div class="icon-wrapper">
+					<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"></circle><path d="m21.8 15.3-2.1-1"></path><path d="m21.8 8.7-2.1 1"></path><path d="m15.3 21.8-1-2.1"></path><path d="m8.7 21.8 1-2.1"></path><path d="m2.2 15.3 2.1-1"></path><path d="m2.2 8.7 2.1 1"></path><path d="m15.3 2.2-1 2.1"></path><path d="m8.7 2.2 1 2.1"></path><circle cx="12" cy="12" r="3"></circle></svg>
+				</div>
+				<h2>Automotive Enthusiast</h2>
+				<p>Industrial. High-energy. Mechanical.</p>
+				<span class="btn-ghost">View Garage</span>
+			</div>
+		</a>
+	</main>
+</body>
+
+<style>
+/* Override default body for the full-screen gateway */
+.gateway-body {
+	margin: 0;
+	padding: 0;
+	overflow: hidden; /* Prevent scrolling on desktop */
+	font-family: var(--font-body);
+}
+
+/* Remove the global float animation from the gateway so styling is isolated */
+.gateway-body::before {
+	display: none;
+}
+
+.split-container {
+	display: flex;
+	width: 100vw;
+	height: 100vh;
+}
+
+.split-pane {
+	flex: 1;
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-decoration: none;
+	color: #fff;
+	overflow: hidden;
+	transition: flex 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+	background-size: cover;
+	background-position: center;
+}
+
+/* Hover expansion */
+@media (min-width: 769px) {
+	.split-pane:hover {
+		flex: 1.4;
+	}
+}
+
+.content {
+	position: relative;
+	z-index: 2;
+	text-align: center;
+	padding: 3rem;
+	transition: transform 0.5s ease;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.icon-wrapper {
+	margin-bottom: 1.5rem;
+	opacity: 0.8;
+	transition: transform 0.4s ease, opacity 0.4s ease;
+}
+
+.split-pane:hover .icon-wrapper {
+	transform: scale(1.1) translateY(-10px);
+	opacity: 1;
+}
+
+.split-pane h2 {
+	font-size: clamp(2.5rem, 5vw, 4rem);
+	margin-bottom: 0.5rem;
+	font-weight: 800;
+	letter-spacing: -1px;
+}
+
+.split-pane p {
+	font-size: clamp(1rem, 2vw, 1.25rem);
+	margin-bottom: 2.5rem;
+	opacity: 0.9;
+	font-weight: 300;
+	letter-spacing: 1px;
+}
+
+.overlay {
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	transition: background-color 0.6s ease, opacity 0.6s ease;
+}
+
+/* --- Enterprise Architect --- */
+.pane-professional {
+	background-color: #0f172a; /* Slate dark */
+}
+
+.pane-professional .overlay {
+	background: linear-gradient(135deg, rgba(15,23,42,0.9) 0%, rgba(56,189,248,0.1) 100%);
+}
+
+.pane-professional:hover .overlay {
+	background-color: rgba(15,23,42,0.4); /* Brightens up */
+}
+
+/* --- Automotive Enthusiast --- */
+.pane-automotive {
+	background-color: #1a1a1a;
+	background-image: repeating-linear-gradient(45deg, #111 25%, transparent 25%, transparent 75%, #111 75%, #111), repeating-linear-gradient(45deg, #111 25%, #1a1a1a 25%, #1a1a1a 75%, #111 75%, #111);
+	background-position: 0 0, 50px 50px;
+	background-size: 100px 100px;
+}
+
+.pane-automotive .overlay {
+	background: radial-gradient(circle at center, rgba(239, 68, 68, 0.2) 0%, rgba(10,10,10,0.9) 100%);
+}
+
+.pane-automotive:hover .overlay {
+	background: radial-gradient(circle at center, rgba(239, 68, 68, 0.4) 0%, rgba(10,10,10,0.7) 100%);
+}
+
+/* --- Buttons --- */
+.btn-ghost {
+	display: inline-block;
+	padding: 0.75rem 2.5rem;
+	border: 2px solid;
+	border-radius: 999px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 2px;
+	transition: all 0.3s ease;
+	font-size: 0.9rem;
+}
+
+.pane-professional .btn-ghost {
+	border-color: #38bdf8; /* Sky blue */
+	color: #38bdf8;
+}
+
+.pane-professional:hover .btn-ghost {
+	background: #38bdf8;
+	color: #0f172a;
+	box-shadow: 0 0 20px rgba(56,189,248,0.4);
+}
+
+.pane-automotive .btn-ghost {
+	border-color: #ef4444; /* Red */
+	color: #ef4444;
+	border-radius: 4px; /* Industrial look */
+}
+
+.pane-automotive:hover .btn-ghost {
+	background: #ef4444;
+	color: #fff;
+	box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+}
+
+/* --- Responsive (Calgary Mobile Viewer) --- */
+@media (max-width: 768px) {
+	.split-container {
+		flex-direction: column;
+		height: 100vh; /* Using 100vh is fine, 100dvh is better for mobile but standard is fine */
+		height: 100dvh;
+	}
+	.split-pane {
+		width: 100%;
+		flex: 1; /* Split 50/50 vertically */
+	}
+	.gateway-body {
+		overflow: auto;
+	}
+	.split-pane:hover {
+		flex: 1; /* Disable flex expansion on mobile to prevent jumps */
+	}
+	.content {
+		padding: 1.5rem;
+	}
+}
+</style>
+</html>
