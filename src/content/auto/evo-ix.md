@@ -3,7 +3,7 @@ id: "evo-ix"
 name: "Mitsubishi Lancer Evolution IX MR"
 year: "2006"
 type: "Time Attack / Street"
-placeholderImage: "https://images.unsplash.com/photo-1600705886475-680f5ec8caff?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
+placeholderImage: "./evo-ix.jpg"
 specs:
   Engine: "2.0L 4G63T (Built Block)"
   Turbo: "Garrett GTX3582R Gen II"

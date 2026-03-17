@@ -1,0 +1,182 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
+
+const garageCol = await getCollection('auto');
+---
+
+<Layout title="Garage & Build Logs | RedApe" description="Automotive builds, spec sheets, and track day logs.">
+	
+	<!-- Import a mechanical google font for this page selectively -->
+	<style is:inline>
+		@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+	</style>
+
+	<div class="auto-container">
+		
+		<header class="auto-header">
+			<h1 class="mech-title">The Garage</h1>
+			<p class="mech-subtitle">Spec Sheets & Build Logs // Initialize</p>
+			<div class="caution-tape"></div>
+		</header>
+
+		<div class="garage-grid">
+			{garageCol.map((car) => (
+				<a class="car-card" href={`/auto/${car.id}`} key={car.id}>
+					<div class="card-image-wrapper">
+						<Image 
+							src={car.data.placeholderImage} 
+							alt={`Photo of ${car.data.name}`} 
+							width={800}
+							height={450}
+							class="card-image"
+						/>
+						<div class="card-overlay"></div>
+					</div>
+					<div class="card-content">
+						<h2>{car.data.name}</h2>
+						<span class="card-meta">CHASSIS: {car.data.year} | CLASSIFICATION: {car.data.type}</span>
+					</div>
+				</a>
+			))}
+		</div>
+	</div>
+</Layout>
+
+<style>
+/* Automotive Base */
+.auto-container {
+	max-width: 1200px;
+	margin: 0 auto;
+	padding-bottom: 5rem;
+	/* Apply the mechanical font locally to the container */
+	font-family: 'Share Tech Mono', monospace; 
+}
+
+/* Header */
+.auto-header {
+	margin-bottom: 4rem;
+	position: relative;
+	padding-bottom: 2rem;
+}
+
+.mech-title {
+	font-size: clamp(3rem, 6vw, 5rem);
+	text-transform: uppercase;
+	color: #fff;
+	text-shadow: 2px 2px 0px #ef4444;
+	margin-bottom: 0.5rem;
+}
+
+.mech-subtitle {
+	color: #8b8e98;
+	font-size: 1.2rem;
+	letter-spacing: 2px;
+	text-transform: uppercase;
+}
+
+.caution-tape {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 8px;
+	background: repeating-linear-gradient(
+		45deg,
+		#ef4444,
+		#ef4444 10px,
+		#111 10px,
+		#111 20px
+	);
+}
+
+/* Garage Grid */
+.garage-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+	gap: 2.5rem;
+}
+
+.car-card {
+	display: block;
+	text-decoration: none;
+	background: rgba(15, 15, 15, 0.6);
+	border: 1px solid #333;
+	border-radius: 4px;
+	overflow: hidden;
+	transition: all 0.3s ease;
+	position: relative;
+}
+
+.car-card:hover {
+	border-color: #ef4444;
+	transform: translateY(-5px);
+	box-shadow: 0 10px 30px rgba(239, 68, 68, 0.15);
+}
+
+.card-image-wrapper {
+	width: 100%;
+	aspect-ratio: 16/9;
+	position: relative;
+	overflow: hidden;
+	background: #000;
+}
+
+.card-image {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	transition: transform 0.8s ease;
+}
+
+.car-card:hover .card-image {
+	transform: scale(1.05);
+}
+
+.card-overlay {
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 60%);
+	pointer-events: none;
+}
+
+.card-content {
+	padding: 1.5rem;
+	position: relative;
+	z-index: 2;
+}
+
+.card-content h2 {
+	font-size: 1.5rem;
+	color: #fff;
+	text-transform: uppercase;
+	margin-bottom: 0.5rem;
+	text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+	line-height: 1.2;
+}
+
+.card-meta {
+	display: inline-block;
+	color: #8b8e98;
+	font-size: 0.85rem;
+	letter-spacing: 1px;
+	margin-top: 0.5rem;
+}
+
+/* Mechanical corner accent */
+.car-card::after {
+	content: '';
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	width: 20px;
+	height: 20px;
+	background: linear-gradient(135deg, transparent 50%, #333 50%);
+	transition: background 0.3s ease;
+}
+
+.car-card:hover::after {
+	background: linear-gradient(135deg, transparent 50%, #ef4444 50%);
+}
+</style>

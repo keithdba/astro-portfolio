@@ -1,60 +1,76 @@
-import { defineCollection, z } from 'astro:content';
-import { glob, file } from 'astro/loaders';
+import { z, defineCollection } from 'astro:content';
+import { glob } from 'astro/loaders';
 
-const automotiveCollection = defineCollection({
-  loader: glob({ pattern: "*.md", base: "./src/content/automotive" }),
-  schema: z.object({
+const autoCollection = defineCollection({
+  loader: glob({ pattern: "**/*.md", base: "./src/content/auto" }),
+  schema: ({ image }) => z.object({
     id: z.string(),
     name: z.string(),
     year: z.string(),
     type: z.string(),
-    placeholderImage: z.string(),
-    specs: z.any() // Using z.any() instead of z.record to bypass the z_od parser bug temporarily in Astro loader
+    placeholderImage: image(),
+    specs: z.record(z.string(), z.string())
   })
 });
 
-const professionalRolesCollection = defineCollection({
-  loader: glob({ pattern: "*.md", base: "./src/content/professional-roles" }),
-  schema: z.object({
-    id: z.string(),
-    title: z.string(),
-    company: z.string(),
-    duration: z.string(),
-    description: z.string(),
-    highlights: z.array(z.string())
-  })
-});
-
-const professionalSpeakingCollection = defineCollection({
-  loader: glob({ pattern: "*.md", base: "./src/content/professional-speaking" }),
-  schema: z.object({
-    id: z.string(),
-    event: z.string(),
-    date: z.string(),
-    topic: z.string(),
-    location: z.string()
-  })
-});
-
-// The file loader wraps the parsed JSON in an id by default for arrays, but for a single object
-// it wraps the entire object inside the `data` property of an entry, so we need to match the object exactly.
-const professionalProfileCollection = defineCollection({
-  loader: file("src/content/professional-profile/main.json"),
-  schema: z.object({
-    id: z.string(),
-    name: z.string(),
-    title: z.string(),
-    summary: z.string(),
-    contact: z.object({
-      email: z.string(),
-      linkedin: z.string()
+const proCollection = defineCollection({
+  loader: glob({ pattern: "**/*.md", base: "./src/content/pro" }),
+  schema: z.discriminatedUnion('type', [
+    z.object({
+      type: z.literal('role'),
+      id: z.string(),
+      title: z.string(),
+      company: z.string(),
+      duration: z.string(),
+      description: z.string(),
+      highlights: z.array(z.string())
+    }),
+    z.object({
+      type: z.literal('speaking'),
+      id: z.string(),
+      event: z.string(),
+      date: z.string(),
+      topic: z.string(),
+      location: z.string()
+    }),
+    z.object({
+      type: z.literal('profile'),
+      id: z.string(),
+      name: z.string(),
+      title: z.string(),
+      contact: z.object({
+        email: z.string(),
+        linkedin: z.string()
+      })
+    }),
+    z.object({
+      type: z.literal('resume'),
+      id: z.string(),
+      title: z.string(),
+      name: z.string(),
+      summary: z.string(),
+      contact: z.object({
+        email: z.string(),
+        linkedin: z.string()
+      }),
+      experience: z.array(z.object({
+        title: z.string(),
+        company: z.string(),
+        duration: z.string(),
+        description: z.string(),
+        highlights: z.array(z.string())
+      })),
+      speaking: z.array(z.object({
+        date: z.string(),
+        event: z.string(),
+        link: z.string(),
+        topic: z.string()
+      }))
     })
-  })
+  ])
 });
 
 export const collections = {
-  'automotive': automotiveCollection,
-  'professional-roles': professionalRolesCollection,
-  'professional-speaking': professionalSpeakingCollection,
-  'professional-profile': professionalProfileCollection
+  'auto': autoCollection,
+  'pro': proCollection
 };

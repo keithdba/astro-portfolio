@@ -1,0 +1,312 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection, render } from 'astro:content';
+import { Image } from 'astro:assets';
+
+export async function getStaticPaths() {
+	const garage = await getCollection('auto');
+	return garage.map(car => ({
+		params: { id: car.id },
+		props: { car },
+	}));
+}
+
+const { car } = Astro.props;
+const { Content } = await render(car);
+---
+
+<Layout title={`${car.data.name} | RedApe Garage`} description={`Build sheet and technical log for ${car.data.name}`}>
+	
+	<style is:inline>
+		@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+	</style>
+
+	<article class="schematic-container">
+		
+		<!-- Controls / Back Nav -->
+		<nav class="schematic-nav">
+			<a href="/auto" class="nav-return">[&lt; RETURN TO GARAGE]</a>
+			<span class="nav-doc-id">DOC_ID: {car.id.toUpperCase()}</span>
+		</nav>
+
+		<header class="schematic-header">
+			<h1 class="mech-title">{car.data.name}</h1>
+			<p class="mech-subtitle">CHASSIS_NO: {car.data.year} // CLASS: {car.data.type}</p>
+			<div class="caution-tape"></div>
+		</header>
+
+		<div class="schematic-hero">
+			<div class="image-frame">
+				<Image 
+					src={car.data.placeholderImage} 
+					alt={`Hero shot of ${car.data.name}`} 
+					width={1200}
+					height={600}
+					class="hero-image"
+				/>
+				<div class="scanlines"></div>
+			</div>
+			<div class="corner-accents">
+				<div class="tl"></div><div class="tr"></div>
+				<div class="bl"></div><div class="br"></div>
+			</div>
+		</div>
+
+		<div class="schematic-grid">
+			
+			<!-- Spec Sheet Column -->
+			<aside class="schematic-specs">
+				<h3 class="blueprint-section-heading">/// SYSTEM_PARAMS</h3>
+				<table class="blueprint-table">
+					<tbody>
+						{Object.entries(car.data.specs).map(([key, value]) => (
+							<tr>
+								<th>[{key}]</th>
+								<td>{String(value)}</td>
+							</tr>
+						))}
+					</tbody>
+				</table>
+			</aside>
+
+			<!-- Build Logs Column -->
+			<main class="schematic-logs">
+				<h3 class="blueprint-section-heading">/// BUILD_LOGS</h3>
+				<div class="markdown-body blueprint-logs">
+					<Content />
+				</div>
+			</main>
+		</div>
+
+	</article>
+
+</Layout>
+
+<style>
+/* Base Blueprint Aesthetic */
+.schematic-container {
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 2rem 0 5rem 0;
+	font-family: 'Share Tech Mono', monospace;
+	color: #e2e8f0;
+}
+
+/* Nav */
+.schematic-nav {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 2rem;
+	font-size: 0.9rem;
+	color: #ef4444;
+	border-bottom: 1px solid #333;
+	padding-bottom: 0.5rem;
+}
+.nav-return {
+	color: #ef4444;
+	text-decoration: none;
+	transition: color 0.2s ease;
+}
+.nav-return:hover {
+	color: #fff;
+	text-shadow: 0 0 8px #ef4444;
+}
+.nav-doc-id {
+	color: #64748b;
+}
+
+/* Header */
+.schematic-header {
+	margin-bottom: 3rem;
+	position: relative;
+	padding-bottom: 2rem;
+}
+
+.mech-title {
+	font-size: clamp(2.5rem, 5vw, 4.5rem);
+	text-transform: uppercase;
+	color: #fff;
+	text-shadow: 2px 2px 0px #ef4444;
+	margin-bottom: 0.5rem;
+	line-height: 1.1;
+}
+
+.mech-subtitle {
+	color: #8b8e98;
+	font-size: 1.2rem;
+	letter-spacing: 2px;
+	text-transform: uppercase;
+}
+
+.caution-tape {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 8px;
+	background: repeating-linear-gradient(
+		45deg,
+		#ef4444,
+		#ef4444 10px,
+		#111 10px,
+		#111 20px
+	);
+}
+
+/* Hero Shot with HUD aesthetics */
+.schematic-hero {
+	position: relative;
+	margin-bottom: 4rem;
+	background: #000;
+	padding: 1rem;
+	border: 1px solid #333;
+}
+
+.image-frame {
+	position: relative;
+	overflow: hidden;
+	aspect-ratio: 21/9;
+}
+
+.hero-image {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	filter: contrast(1.1) brightness(0.9);
+}
+
+/* Scanlines Effect */
+.scanlines {
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1));
+	background-size: 100% 4px;
+	z-index: 2;
+}
+
+/* Corner HUD accents */
+.corner-accents > div {
+	position: absolute;
+	width: 20px;
+	height: 20px;
+	border: 2px solid #ef4444;
+	z-index: 3;
+}
+.tl { top: 0; left: 0; border-right: none; border-bottom: none; }
+.tr { top: 0; right: 0; border-left: none; border-bottom: none; }
+.bl { bottom: 0; left: 0; border-right: none; border-top: none; }
+.br { bottom: 0; right: 0; border-left: none; border-top: none; }
+
+/* Grid Layout */
+.schematic-grid {
+	display: grid;
+	grid-template-columns: 1fr 2fr;
+	gap: 4rem;
+}
+
+@media (max-width: 900px) {
+	.schematic-grid {
+		grid-template-columns: 1fr;
+		gap: 3rem;
+	}
+	.image-frame {
+		aspect-ratio: 16/9;
+	}
+}
+
+.blueprint-section-heading {
+	color: #ef4444;
+	font-size: 1.25rem;
+	margin-bottom: 2rem;
+	letter-spacing: 2px;
+	border-bottom: 1px dashed #333;
+	padding-bottom: 0.5rem;
+}
+
+/* Blueprint Tables */
+.blueprint-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 1rem;
+}
+
+.blueprint-table th, 
+.blueprint-table td {
+	padding: 1rem 0;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+	text-align: left;
+}
+
+.blueprint-table th {
+	color: #64748b;
+	font-weight: normal;
+	width: 35%;
+	vertical-align: top;
+}
+
+.blueprint-table td {
+	color: #fff;
+}
+
+/* Markdown Override for Blueprint Logs */
+.blueprint-logs h3 {
+	color: #ef4444;
+	font-size: 1.1rem;
+	margin-top: 2.5rem;
+	margin-bottom: 1.5rem;
+	letter-spacing: 2px;
+	text-transform: uppercase;
+}
+
+.blueprint-logs h3:first-child {
+	margin-top: 0;
+}
+
+.blueprint-logs p {
+	color: #94a3b8;
+	font-size: 1rem;
+	line-height: 1.7;
+	font-family: var(--font-body); /* Falling back to outfit for readability */
+	margin-bottom: 2rem;
+	background: rgba(15, 23, 42, 0.4);
+	border: 1px solid rgba(255, 255, 255, 0.05);
+	padding: 1.5rem;
+	position: relative;
+	margin-left: 2.5rem;
+}
+
+.blueprint-logs strong {
+	display: block;
+	color: #ef4444;
+	font-size: 0.95rem;
+	margin-bottom: 0.75rem;
+	font-family: 'Share Tech Mono', monospace;
+	position: relative;
+	margin-left: 2.5rem;
+}
+
+.blueprint-logs strong::before {
+	content: '[LOG]';
+	position: absolute;
+	left: -3rem;
+	color: #64748b;
+	font-size: 0.85rem;
+}
+
+.blueprint-logs {
+	position: relative;
+}
+
+/* Connector Line */
+.blueprint-logs::before {
+	content: '';
+	position: absolute;
+	left: 0.5rem;
+	top: 0;
+	bottom: 0;
+	width: 1px;
+	background: #333;
+}
+</style>

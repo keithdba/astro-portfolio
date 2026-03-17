@@ -1,0 +1,376 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  resume: CollectionEntry<'pro'>;
+}
+
+const { resume } = Astro.props;
+
+if (resume.data.type !== 'resume') {
+  throw new Error("ResumeTimeline component requires a 'resume' document type.");
+}
+
+const { title, name, summary, contact, experience, speaking } = resume.data;
+---
+
+<div class="resume-wrapper">
+  
+  <header class="resume-header">
+    <div class="header-content">
+      <h1 class="resume-name">{name}</h1>
+      <h2 class="resume-title">{title}</h2>
+      <p class="resume-summary">{summary}</p>
+      
+      <div class="contact-links">
+        <a href={contact.linkedin} class="resume-link outline" target="_blank" rel="noopener noreferrer">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          LinkedIn
+        </a>
+        <a href={`mailto:${contact.email}`} class="resume-link solid">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+          Contact
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <div class="resume-grid">
+    
+    <!-- Left Column: Timeline -->
+    <section class="experience-section">
+      <h3 class="section-title">Professional Experience</h3>
+      
+      <div class="timeline">
+        {experience.map((job) => (
+          <div class="timeline-item">
+            <div class="timeline-marker"></div>
+            <div class="timeline-content">
+              <div class="job-header">
+                <div class="job-titles">
+                  <h4>{job.title}</h4>
+                  <span class="company">{job.company}</span>
+                </div>
+                <div class="job-duration">{job.duration}</div>
+              </div>
+              <p class="job-desc">{job.description}</p>
+              <ul class="job-highlights">
+                {job.highlights.map(highlight => (
+                  <li>{highlight}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- Right Column: Speaking & Meta -->
+    <aside class="sidebar-section">
+      <h3 class="section-title">Speaking Engagements</h3>
+      
+      <div class="speaking-list">
+        {speaking.map(event => (
+          <a href={event.link} target="_blank" rel="noopener noreferrer" class="speaking-card">
+            <div class="speaking-meta">
+              <span class="speaking-date">{event.date}</span>
+              <span class="speaking-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+              </span>
+            </div>
+            <h4 class="speaking-topic">"{event.topic}"</h4>
+            <p class="speaking-event">{event.event}</p>
+          </a>
+        ))}
+      </div>
+    </aside>
+
+  </div>
+</div>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+  .resume-wrapper {
+    font-family: 'Inter', sans-serif;
+    max-width: 1100px;
+    margin: 0 auto;
+    color: #f1f5f9;
+    padding-bottom: 6rem;
+  }
+
+  /* Header Reimagined */
+  .resume-header {
+    margin-bottom: 5rem;
+    padding-bottom: 3rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .resume-name {
+    font-size: clamp(3rem, 6vw, 4.5rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+    margin-bottom: 0.5rem;
+    color: #ffffff;
+  }
+
+  .resume-title {
+    font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+    font-weight: 500;
+    color: #94a3b8; /* Slate-400 */
+    margin-bottom: 2rem;
+    letter-spacing: -0.01em;
+  }
+
+  .resume-summary {
+    font-size: 1.125rem;
+    line-height: 1.7;
+    color: #cbd5e1; /* Slate-300 */
+    max-width: 800px;
+    margin-bottom: 2.5rem;
+    font-weight: 300;
+  }
+
+  .contact-links {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .resume-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    text-decoration: none;
+  }
+
+  .resume-link.outline {
+    background: transparent;
+    color: #e2e8f0;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .resume-link.outline:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.4);
+  }
+
+  .resume-link.solid {
+    background: #f8fafc;
+    color: #0f172a;
+    border: 1px solid #f8fafc;
+  }
+
+  .resume-link.solid:hover {
+    background: #e2e8f0;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+  }
+
+  /* Structural Grid */
+  .resume-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 4rem;
+  }
+
+  @media (max-width: 900px) {
+    .resume-grid {
+      grid-template-columns: 1fr;
+      gap: 5rem;
+    }
+  }
+
+  .section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 2.5rem;
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .section-title::after {
+    content: '';
+    height: 1px;
+    flex-grow: 1;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0.1), transparent);
+  }
+
+  /* Vertical Timeline Implementation */
+  .timeline {
+    position: relative;
+    padding-left: 1.5rem;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    bottom: 0;
+    left: 0;
+    width: 2px;
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .timeline-item {
+    position: relative;
+    margin-bottom: 4rem;
+  }
+
+  .timeline-item:last-child {
+    margin-bottom: 0;
+  }
+
+  .timeline-marker {
+    position: absolute;
+    left: -1.75rem;
+    top: 0.4rem;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #0f172a;
+    border: 2px solid #64748b; /* Slate-500 */
+    transition: border-color 0.3s ease;
+  }
+
+  .timeline-item:hover .timeline-marker {
+    border-color: #f8fafc;
+    box-shadow: 0 0 0 3px rgba(248, 250, 252, 0.1);
+  }
+
+  .job-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .job-titles h4 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #f8fafc;
+    margin-bottom: 0.25rem;
+  }
+
+  .company {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #94a3b8;
+  }
+
+  .job-duration {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.85rem;
+    color: #64748b;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .job-desc {
+    font-size: 1rem;
+    color: #cbd5e1;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    font-weight: 300;
+  }
+
+  .job-highlights {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .job-highlights li {
+    position: relative;
+    padding-left: 1.5rem;
+    margin-bottom: 0.75rem;
+    color: #94a3b8;
+    line-height: 1.5;
+    font-size: 0.95rem;
+  }
+
+  .job-highlights li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.5rem;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #64748b;
+  }
+
+  /* Speaking Component Styles */
+  .speaking-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .speaking-card {
+    display: block;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 1.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .speaking-card:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+  }
+
+  .speaking-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+  }
+
+  .speaking-date {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.8rem;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .speaking-icon {
+    color: #64748b;
+    transition: color 0.2s ease, transform 0.2s ease;
+  }
+
+  .speaking-card:hover .speaking-icon {
+    color: #f8fafc;
+    transform: translate(2px, -2px);
+  }
+
+  .speaking-topic {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #f1f5f9;
+    line-height: 1.4;
+    margin-bottom: 0.5rem;
+  }
+
+  .speaking-event {
+    font-size: 0.9rem;
+    color: #94a3b8;
+  }
+</style>

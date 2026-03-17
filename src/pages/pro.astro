@@ -1,0 +1,16 @@
+---
+import Layout from '../layouts/Layout.astro';
+import ResumeTimeline from '../components/ResumeTimeline.astro';
+import { getCollection } from 'astro:content';
+
+const proCol = await getCollection('pro');
+const resumeEntry = proCol.find(p => p?.data?.type === 'resume');
+
+if (!resumeEntry) {
+  throw new Error("No resume document found in 'pro' collection. Ensure src/content/pro/resume.md exists and has type: 'resume'.");
+}
+---
+
+<Layout title="Executive Profile | RedApe" description="Professional portfolio, resume, and speaking engagements.">
+	<ResumeTimeline resume={resumeEntry} />
+</Layout>
