@@ -64,7 +64,8 @@ const proCollection = defineCollection({
         date: z.string(),
         event: z.string(),
         link: z.string(),
-        topic: z.string()
+        topic: z.string(),
+        description: z.string().optional()
       }))
     })
   ])
