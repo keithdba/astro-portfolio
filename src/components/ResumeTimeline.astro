@@ -96,7 +96,7 @@ const { title, name, summary, contact, experience, speaking } = resume.data;
     font-family: 'Inter', sans-serif;
     max-width: 1100px;
     margin: 0 auto;
-    color: #f1f5f9;
+    color: #334155;
     padding-bottom: 6rem;
   }
 
@@ -104,7 +104,7 @@ const { title, name, summary, contact, experience, speaking } = resume.data;
   .resume-header {
     margin-bottom: 5rem;
     padding-bottom: 3rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   }
 
   .resume-name {
@@ -113,13 +113,13 @@ const { title, name, summary, contact, experience, speaking } = resume.data;
     letter-spacing: -0.04em;
     line-height: 1.1;
     margin-bottom: 0.5rem;
-    color: #ffffff;
+    color: #0f172a;
   }
 
   .resume-title {
     font-size: clamp(1.2rem, 2.5vw, 1.5rem);
     font-weight: 500;
-    color: #94a3b8; /* Slate-400 */
+    color: #64748b; /* Slate-500 */
     margin-bottom: 2rem;
     letter-spacing: -0.01em;
   }
@@ -127,7 +127,7 @@ const { title, name, summary, contact, experience, speaking } = resume.data;
   .resume-summary {
     font-size: 1.125rem;
     line-height: 1.7;
-    color: #cbd5e1; /* Slate-300 */
+    color: #475569; /* Slate-600 */
     max-width: 800px;
     margin-bottom: 2.5rem;
     font-weight: 300;
@@ -153,25 +153,25 @@ const { title, name, summary, contact, experience, speaking } = resume.data;
 
   .resume-link.outline {
     background: transparent;
-    color: #e2e8f0;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #475569;
+    border: 1px solid rgba(0, 0, 0, 0.2);
   }
 
   .resume-link.outline:hover {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.4);
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.4);
   }
 
   .resume-link.solid {
-    background: #f8fafc;
-    color: #0f172a;
-    border: 1px solid #f8fafc;
+    background: #0f172a;
+    color: #f8fafc;
+    border: 1px solid #0f172a;
   }
 
   .resume-link.solid:hover {
-    background: #e2e8f0;
+    background: #1e293b;
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
 
   /* Structural Grid */
@@ -191,7 +191,7 @@ const { title, name, summary, contact, experience, speaking } = resume.data;
   .section-title {
     font-size: 1.25rem;
     font-weight: 600;
-    color: #ffffff;
+    color: #0f172a;
     margin-bottom: 2.5rem;
     letter-spacing: -0.01em;
     display: flex;
@@ -203,7 +203,7 @@ const { title, name, summary, contact, experience, speaking } = resume.data;
     content: '';
     height: 1px;
     flex-grow: 1;
-    background: linear-gradient(to right, rgba(255, 255, 255, 0.1), transparent);
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.1), transparent);
   }
 
   /* Vertical Timeline Implementation */
@@ -219,7 +219,7 @@ const { title, name, summary, contact, experience, speaking } = resume.data;
     bottom: 0;
     left: 0;
     width: 2px;
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.08);
   }
 
   .timeline-item {
@@ -238,14 +238,14 @@ const { title, name, summary, contact, experience, speaking } = resume.data;
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    background: #0f172a;
-    border: 2px solid #64748b; /* Slate-500 */
+    background: #f8fafc;
+    border: 2px solid #94a3b8; /* Slate-400 */
     transition: border-color 0.3s ease;
   }
 
   .timeline-item:hover .timeline-marker {
-    border-color: #f8fafc;
-    box-shadow: 0 0 0 3px rgba(248, 250, 252, 0.1);
+    border-color: #0f172a;
+    box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.1);
   }
 
   .job-header {
@@ -260,29 +260,29 @@ const { title, name, summary, contact, experience, speaking } = resume.data;
   .job-titles h4 {
     font-size: 1.25rem;
     font-weight: 600;
-    color: #f8fafc;
+    color: #0f172a;
     margin-bottom: 0.25rem;
   }
 
   .company {
     font-size: 1rem;
     font-weight: 500;
-    color: #94a3b8;
+    color: #475569;
   }
 
   .job-duration {
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-size: 0.85rem;
-    color: #64748b;
-    background: rgba(255, 255, 255, 0.03);
+    color: #475569;
+    background: rgba(0, 0, 0, 0.03);
     padding: 0.25rem 0.75rem;
     border-radius: 4px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.05);
   }
 
   .job-desc {
     font-size: 1rem;
-    color: #cbd5e1;
+    color: #334155;
     line-height: 1.6;
     margin-bottom: 1.5rem;
     font-weight: 300;
@@ -298,7 +298,7 @@ const { title, name, summary, contact, experience, speaking } = resume.data;
     position: relative;
     padding-left: 1.5rem;
     margin-bottom: 0.75rem;
-    color: #94a3b8;
+    color: #475569;
     line-height: 1.5;
     font-size: 0.95rem;
   }
@@ -323,18 +323,20 @@ const { title, name, summary, contact, experience, speaking } = resume.data;
 
   .speaking-card {
     display: block;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.06);
     padding: 1.5rem;
     border-radius: 8px;
     text-decoration: none;
     transition: all 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
   }
 
   .speaking-card:hover {
-    background: rgba(255, 255, 255, 0.04);
-    border-color: rgba(255, 255, 255, 0.15);
+    background: #f8fafc;
+    border-color: rgba(0, 0, 0, 0.15);
     transform: translateY(-2px);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.05);
   }
 
   .speaking-meta {
@@ -347,37 +349,37 @@ const { title, name, summary, contact, experience, speaking } = resume.data;
   .speaking-date {
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-size: 0.8rem;
-    color: #64748b;
+    color: #475569;
     text-transform: uppercase;
     letter-spacing: 0.05em;
   }
 
   .speaking-icon {
-    color: #64748b;
+    color: #94a3b8;
     transition: color 0.2s ease, transform 0.2s ease;
   }
 
   .speaking-card:hover .speaking-icon {
-    color: #f8fafc;
+    color: #0f172a;
     transform: translate(2px, -2px);
   }
 
   .speaking-topic {
     font-size: 1.1rem;
     font-weight: 500;
-    color: #f1f5f9;
+    color: #0f172a;
     line-height: 1.4;
     margin-bottom: 0.5rem;
   }
 
   .speaking-event {
     font-size: 0.9rem;
-    color: #94a3b8;
+    color: #475569;
   }
 
   .speaking-desc {
     font-size: 0.95rem;
-    color: #cbd5e1;
+    color: #475569;
     line-height: 1.5;
     margin-top: 0.75rem;
     font-weight: 300;

@@ -1,0 +1,371 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="About Keith MacDaly | MacDaly.com" description="Professional Profile and Automotive Hobby">
+  
+  <header class="page-header">
+    <div class="brand">KEITH MACDALY | ABOUT</div>
+    <nav class="page-nav">
+      <a href="/">Home</a>
+      <a href="/pro">Projects</a>
+      <a href="/about" class="active">About</a>
+      <button id="contactModalBtn" class="btn-outline-nav cursor-pointer">Get In Touch</button>
+    </nav>
+  </header>
+
+  <main class="page-container">
+    <div class="about-grid">
+      
+      <!-- Box 1: Professional Profile -->
+      <div class="about-tile tile-pro">
+        <div class="has-photo">
+          <div class="photo-container">
+            <!-- Bound to public/profile.jpg -->
+            <img src="/profile.jpg" alt="Keith MacDaly Headshot" class="profile-image" onerror="this.style.display='none';" />
+          </div>
+          <div class="text-content">
+            <h2>Professional Profile</h2>
+            <p>Keith operates at the intersection of enterprise architecture, product strategy, and AI‑native workflow design. His work focuses on transforming complex systems into modular, scalable, and adaptive architectures that enable organizations to move faster with far less friction. He brings a rare blend of strategic clarity, technical literacy, and systems thinking, shaping requirements, orchestrating delivery, and driving teams toward outcomes rather than output. His approach is grounded in rigor, evidence, and repeatable frameworks that reduce ambiguity and accelerate innovation.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Box 2: Automotive Hobby -->
+      <div class="about-tile tile-auto">
+        <h2>Automotive Hobby</h2>
+        <p>Keith’s automotive world is a hands‑on exploration of off‑road capability, overlanding design, and performance‑focused builds. He’s drawn to vehicles as systems — platforms to be optimized, tuned, and adapted for real‑world terrain and long‑range travel. Whether refining suspension geometry, integrating recovery and expedition gear, or pushing performance envelopes, Keith approaches each build with the same architectural mindset he brings to his professional work: purposeful, modular, and engineered for reliability in the wild.</p>
+      </div>
+
+    </div>
+
+    <!-- CONTACT MODAL -->
+    <dialog id="contactModal" class="contact-dialog">
+      <div class="modal-inner">
+        <button class="close-modal" aria-label="Close Modal">&times;</button>
+        <h3>Get In Touch</h3>
+        <p>Send me an email directly. I'll get back to you as soon as possible.</p>
+        <form action="mailto:keith@macdaly.com" method="GET" enctype="text/plain" id="contactForm" class="contact-form">
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" placeholder="Please share your name" required />
+          </div>
+          <div class="form-group">
+            <label for="email">Email address</label>
+            <input type="email" id="email" name="email" placeholder="john@example.com" required />
+          </div>
+          <div class="form-group">
+            <label for="body">Message</label>
+            <textarea id="body" name="body" rows="4" placeholder="How can I help you?" required></textarea>
+          </div>
+          <button type="submit" class="btn-hero btn-dark w-full mt-2">Send Message</button>
+        </form>
+      </div>
+    </dialog>
+
+  </main>
+
+  <script>
+    const dialog = document.getElementById('contactModal');
+    const btn = document.getElementById('contactModalBtn');
+    const closeBtn = document.querySelector('.close-modal');
+
+    // Identical modal DOM math logic
+    if (btn && dialog && closeBtn) {
+      btn.addEventListener('click', () => {
+        const rect = btn.getBoundingClientRect();
+        const dialogWidth = Math.min(450, window.innerWidth * 0.9);
+        let leftPos = rect.right - dialogWidth;
+        if (leftPos < 16) leftPos = 16;
+        
+        dialog.style.margin = '0';
+        dialog.style.position = 'fixed';
+        dialog.style.top = `${rect.bottom + 12}px`;
+        dialog.style.left = `${leftPos}px`;
+        
+        // TypeScript/Astro typing handles showModal dynamically compiled
+        (dialog as HTMLDialogElement).showModal();
+      });
+      
+      closeBtn.addEventListener('click', () => (dialog as HTMLDialogElement).close());
+      dialog.addEventListener('click', (e) => {
+        const dialogDimensions = dialog.getBoundingClientRect();
+        if (
+          e.clientX < dialogDimensions.left ||
+          e.clientX > dialogDimensions.right ||
+          e.clientY < dialogDimensions.top ||
+          e.clientY > dialogDimensions.bottom
+        ) {
+          (dialog as HTMLDialogElement).close();
+        }
+      });
+    }
+  </script>
+</Layout>
+
+<style>
+  /* Base Container */
+  .page-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+    font-family: var(--font-body);
+    color: #0f172a;
+  }
+
+  /* Header */
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+    border-bottom: 1px solid #e2e8f0;
+    font-family: var(--font-body);
+  }
+  
+  .brand {
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: #0f172a;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+  }
+
+  .page-nav {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+  }
+
+  .page-nav a {
+    text-decoration: none;
+    color: #0f172a;
+    font-weight: 500;
+    font-size: 0.95rem;
+  }
+  
+  .page-nav a.active {
+    color: #10b981;
+    font-weight: 700;
+  }
+
+  .cursor-pointer { cursor: pointer; }
+  .btn-outline-nav {
+    border: 1px solid #0f172a;
+    padding: 0.4rem 1rem;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    font-size: 0.95rem;
+    background: transparent;
+  }
+
+  .btn-outline-nav:hover {
+    background: #0f172a;
+    color: #ffffff !important;
+  }
+
+  /* About Grid & Tiles */
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    max-width: 900px; /* Keep text lines highly readable */
+    margin: 0 auto;
+  }
+
+  .about-tile {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 1rem;
+    padding: 3rem 2.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  }
+
+  /* Semantic borders tracking the global Pro/Auto color schemes */
+  .tile-pro {
+    border-top: 5px solid #e2e8f0;
+  }
+  
+  .tile-auto {
+    border-top: 5px solid #b0c4de;
+  }
+
+  .about-tile h2 {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.03em;
+  }
+  
+  .about-tile p {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: #334155;
+    margin: 0;
+  }
+
+  .has-photo {
+    display: flex;
+    gap: 2.5rem;
+    align-items: flex-start;
+  }
+
+  /* Responsive Photo Column */
+  .photo-container {
+    flex-shrink: 0;
+    width: 200px;
+  }
+
+  .profile-image {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    object-fit: cover;
+  }
+
+  /* Modal CSS */
+  .contact-dialog[open] {
+    animation: popOut 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    transform-origin: top right;
+  }
+  @keyframes popOut {
+    0% { transform: scale(0.95); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .contact-dialog {
+    padding: 0;
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    max-width: 450px;
+    width: 90%;
+    background: #ffffff;
+    font-family: var(--font-body);
+    color: #0f172a;
+  }
+  
+  .contact-dialog::backdrop {
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(4px);
+  }
+
+  .modal-inner {
+    padding: 2.5rem 2rem;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .close-modal {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: transparent;
+    border: none;
+    font-size: 2rem;
+    line-height: 1;
+    color: #64748b;
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+  .close-modal:hover { color: #0f172a; }
+
+  .contact-dialog h3 {
+    margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+  }
+  .contact-dialog p {
+    color: #475569;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 2rem;
+    background: transparent;
+  }
+
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .form-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #334155;
+  }
+
+  .form-group input, .form-group textarea {
+    padding: 0.8rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    transition: border-color 0.2s ease;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .form-group input:focus, .form-group textarea:focus {
+    outline: none;
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+  }
+
+  .w-full { width: 100%; }
+  .mt-2 { margin-top: 0.5rem; }
+  .btn-hero {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+  }
+  .btn-dark {
+    background: #0f172a;
+    color: #ffffff;
+    border: none;
+    cursor: pointer;
+  }
+  .btn-dark:hover { background: #1e293b; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transform: translateY(-2px); }
+
+  /* Mobile Geometry */
+  @media (max-width: 768px) {
+    .has-photo {
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .photo-container {
+      width: 100%;
+      max-width: 250px;
+      margin: 0 auto;
+    }
+    .page-header {
+      flex-direction: column;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+    .page-nav {
+      flex-wrap: wrap;
+    }
+    .about-tile {
+      padding: 2rem 1.5rem;
+    }
+  }
+</style>

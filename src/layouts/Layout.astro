@@ -19,11 +19,27 @@ const currentPath = Astro.url.pathname;
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
+		{currentPath.startsWith('/pro') && (
+			<style is:inline>
+				:root {
+					--accent: #64748b !important;
+					--accent-glow: rgba(100, 116, 139, 0.2) !important;
+				}
+			</style>
+		)}
+		{currentPath.startsWith('/auto') && (
+			<style is:inline>
+				:root {
+					--accent: #4682b4 !important;
+					--accent-glow: rgba(70, 130, 180, 0.2) !important;
+				}
+			</style>
+		)}
 	</head>
 	<body>
 		<div class="container">
 			<header class="nav-header">
-				<a href="/" class="logo">RedApe</a>
+				<a href="/" class="logo">MacDaly.com</a>
 				<nav class="nav-links">
 					<a href="/pro" class={`nav-link ${currentPath.startsWith('/pro') ? 'active' : ''}`}>Professional</a>
 					<a href="/auto" class={`nav-link ${currentPath.startsWith('/auto') ? 'active' : ''}`}>Automotive</a>

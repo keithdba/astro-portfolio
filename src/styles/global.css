@@ -1,13 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
 
 :root {
-  --bg-color: #0d0f12;
-  --text-main: #f0f0f4;
-  --text-muted: #8b8e98;
+  --bg-color: #f8fafc;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
   --accent: #5e6ad2;
   --accent-glow: rgba(94, 106, 210, 0.4);
-  --glass-bg: rgba(255, 255, 255, 0.03);
-  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(0, 0, 0, 0.08);
   --font-body: 'Outfit', sans-serif;
   --transition-fast: 0.2s ease;
   --transition-slow: 0.5s cubic-bezier(0.25, 1, 0.5, 1);
@@ -112,8 +112,9 @@ h1, h2, h3 {
 .logo {
   font-size: 1.5rem;
   font-weight: 800;
-  background: linear-gradient(to right, #fff, var(--accent));
+  background: linear-gradient(to right, #0f172a, var(--accent));
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
@@ -148,8 +149,9 @@ h1, h2, h3 {
 
 .page-title {
   font-size: clamp(3rem, 5vw, 5rem);
-  background: linear-gradient(to right, #fff, var(--text-muted));
+  background: linear-gradient(to right, #0f172a, var(--text-muted));
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-bottom: 1rem;
 }
