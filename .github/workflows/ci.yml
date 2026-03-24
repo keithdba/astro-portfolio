@@ -26,8 +26,8 @@ jobs:
       - name: Security Audit
         run: npm audit --audit-level=high
 
-      - name: Run Unit Tests
-        run: npm run test
-
       - name: Build / Regression Test
         run: npm run build
+
+      - name: Run Unit Tests
+        run: npm run test
