@@ -28,9 +28,21 @@ export const projectVehicles: Vehicle[] = [
     ],
     futurePlans: "Platform style aluminum extrusion roof rack",
     shortStory: "This truck has been the perfect all purpose vehicle for weekend projects and long hauls. The Hemi provides plenty of power, and the Sport trim makes the interior a great place to be.",
-    heroImage: "/assets/auto/ram-1500-hero.png",
+    heroImage: "/assets/auto/RAM-1500-Hero.jpeg",
     gallery: [
-      "/assets/auto/ram-1500-hero.png"
+      "/assets/auto/RAM-1500-Hero.jpeg",
+      "/assets/auto/RAM-1500-canopy.jpeg",
+      "/assets/auto/RAM-1500-canopy2.jpg",
+      "/assets/auto/RAM-1500-molle1.jpeg",
+      "/assets/auto/RAM-1500-molle2.jpeg",
+      "/assets/auto/RAM-1500-web_Lift1.jpg",
+      "/assets/auto/RAM-1500-web_Step1.jpg",
+      "/assets/auto/RAM-1500-web_Step2.jpg",
+      "/assets/auto/RAM-1500-web_Tire2.jpg",
+      "/assets/auto/RAM-1500-web_Tuxmat2.jpg",
+      "/assets/auto/RAM-1500-web_Tuxmat3.jpg",
+      "/assets/auto/RAM-1500-web_box1.jpg",
+      "/assets/auto/RAM-1500_web_UCA.jpg"
     ]
   },
   {

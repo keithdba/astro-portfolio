@@ -381,17 +381,22 @@ import { projectVehicles } from '../../data/project-vehicles';
   /* ── HERO IMAGE ────────────────────────────────────────────────────────── */
   .hero-image-wrapper {
     width: 100%;
-    height: 420px;
+    min-height: 320px;
+    max-height: 520px;
     border-radius: 1.5rem;
     overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.18);
     margin-bottom: 1rem;
-    background: #f1f5f9;
+    background: #0f172a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   .hero-img {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
+    height: auto;
+    max-height: 520px;
+    object-fit: contain;
     transition: transform 0.5s ease, opacity 0.25s ease;
     display: block;
   }
@@ -549,7 +554,8 @@ import { projectVehicles } from '../../data/project-vehicles';
   @media (max-width: 768px) {
     .vehicle-card { padding: 1.5rem; }
     .vehicle-model { font-size: 1.75rem; }
-    .hero-image-wrapper { height: 240px; }
+    .hero-image-wrapper { min-height: 200px; max-height: 340px; }
+    .hero-img { max-height: 340px; }
     .gallery-thumb-btn { width: 88px; height: 66px; }
     .mod-list { columns: 1; }
     .tabs-section {
