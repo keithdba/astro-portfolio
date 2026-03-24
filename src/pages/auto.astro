@@ -21,6 +21,11 @@ const garageCol = await getCollection('auto');
 			<div class="caution-tape"></div>
 		</header>
 
+		<nav class="auto-tabs" aria-label="Automotive Section Navigation">
+			<a href="/auto" class="auto-tab active">The Garage</a>
+			<a href="/auto/project-vehicles" class="auto-tab">Project Vehicles</a>
+		</nav>
+
 		<div class="garage-grid">
 			{garageCol.map((car) => (
 				<a class="car-card" href={`/auto/${car.id}`} key={car.id}>
@@ -96,6 +101,40 @@ const garageCol = await getCollection('auto');
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
 	gap: 2.5rem;
+}
+
+/* Tab Navigation */
+.auto-tabs {
+	display: flex;
+	gap: 1rem;
+	margin-bottom: 3rem;
+	border-bottom: 1px solid #e2e8f0;
+	padding-bottom: 0.5rem;
+}
+
+.auto-tab {
+	text-decoration: none;
+	color: #64748b;
+	font-weight: 600;
+	padding: 0.75rem 1.5rem;
+	border-radius: 4px;
+	transition: all 0.2s ease;
+	text-transform: uppercase;
+	letter-spacing: 1px;
+	font-size: 0.9rem;
+	border: 1px solid transparent;
+}
+
+.auto-tab:hover {
+	color: #0f172a;
+	background: #f8fafc;
+}
+
+.auto-tab.active {
+	color: #fff;
+	background: #111;
+	border-color: #111;
+	box-shadow: 4px 4px 0px #f59e0b;
 }
 
 .car-card {
