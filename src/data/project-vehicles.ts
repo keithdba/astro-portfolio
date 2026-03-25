@@ -64,11 +64,13 @@ export const projectVehicles: Vehicle[] = [
     heroImage: "/assets/auto/fusion-se-hero.jpeg",
     gallery: [
       "/assets/auto/fusion-se-hero.jpeg",
+      "/assets/auto/fusion-se-bw.jpg",
       "/assets/auto/fusion-se-DSC_5183.jpeg",
       "/assets/auto/fusion-se-Field1.jpeg",
       "/assets/auto/fusion-se-fish-creek.jpeg",
       "/assets/auto/fusion-se-fusion2.jpg",
       "/assets/auto/fusion-se-fusion4_new.jpg",
+      "/assets/auto/fusion-se-ice-rally.jpg",
       "/assets/auto/fusion-se-IMG_0336.jpg",
       "/assets/auto/fusion-se-IMG_3672.jpg",
       "/assets/auto/fusion-se-logo.jpeg",
@@ -92,9 +94,17 @@ export const projectVehicles: Vehicle[] = [
     ],
     futurePlans: "Armor! Differential skids and beefier rock sliders are coming soon.",
     shortStory: "There's nothing quite like the sound of the 4.0L straight-six in the canyons. It's not fast, but it will crawl over anything.",
-    heroImage: "/assets/auto/tj-wrangler-hero.png",
+    heroImage: "/assets/auto/tj-wrangler-hero.jpg",
     gallery: [
-      "/assets/auto/tj-wrangler-hero.png"
+      "/assets/auto/tj-wrangler-hero.jpg",
+      "/assets/auto/tj-wrangler-theodore.jpg",
+      "/assets/auto/tj-wrangler-theodore2.jpg",
+      "/assets/auto/tj-wrangler-theodore3.jpg",
+      "/assets/auto/tj-wrangler-theodore4.jpg",
+      "/assets/auto/tj-wrangler-theodore-waiperous.jpg",
+      "/assets/auto/tj-wrangler-theodore-wedding.jpg",
+      "/assets/auto/tj-wrangler-theodore-wedding2.jpg",
+      "/assets/auto/tj-wrangler-paramount-bumper.jpg"
     ]
   },
   {
@@ -151,9 +161,18 @@ export const projectVehicles: Vehicle[] = [
     ],
     futurePlans: "Maybe a turbo setup for the 22R, but the dual cases make the low range insane already.",
     shortStory: "This truck is older than me but still going strong. The crawl ratio with the dual cases is something you have to experience to believe.",
-    heroImage: "/assets/auto/toyota-82-hero.png",
+    heroImage: "/assets/auto/toyota-82-hero.jpg",
     gallery: [
-      "/assets/auto/toyota-82-hero.png"
+      "/assets/auto/toyota-82-hero.jpg",
+      "/assets/auto/toyota-82-yode-cleavage.jpg",
+      "/assets/auto/toyota-82-yode-cleavage2.jpg",
+      "/assets/auto/toyota-82-yode-cleavage3.jpg",
+      "/assets/auto/toyota-82-yode-petrified.jpg",
+      "/assets/auto/toyota-82-yode-tire-change.jpg",
+      "/assets/auto/toyota-82-yode3.jpg",
+      "/assets/auto/toyota-82-yode4.jpg",
+      "/assets/auto/toyota-82-yode5.jpg",
+      "/assets/auto/toyota-82-yode6.jpg"
     ]
   }
 ];
