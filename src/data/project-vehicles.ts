@@ -73,7 +73,7 @@ export const projectVehicles: Vehicle[] = [
       "/assets/auto/fusion-se-IMG_3672.jpg",
       "/assets/auto/fusion-se-logo.jpeg",
       "/assets/auto/fusion-se-Steeda-RSB2-1024x768.jpeg",
-      "/assets/auto/fusion-se-Strut Tower Brace.JPG",
+      "/assets/auto/fusion-se-strut-tower-brace.jpg",
       "/assets/auto/fusion-se-WoW3.jpeg"
     ]
   },
