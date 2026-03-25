@@ -52,7 +52,7 @@ export const projectVehicles: Vehicle[] = [
     model: "Ford Fusion SE 2.0L EB AWD",
     description: "The sleeper sedan. Tuned 2.0L EB with AWD with a Cobb Accessport v3 by Stratified Automotive, blending performance with comfort.",
     modifications: [
-      "Stratified Automotive 94 Octane Tune",
+      "Stratified Automotive 94 Octane Tune, Cobb Accessport v3",
       "Snokel delete + K&N Drop in filter",
       "Steeda Rear Sway Bar, and strut tower brace",
       "20% all around window tint",
@@ -86,10 +86,10 @@ export const projectVehicles: Vehicle[] = [
     model: "Jeep Wrangler Sport 4.0L I6",
     description: "The dedicated trail rig. Simple, rugged, and capable of going almost anywhere.",
     modifications: [
-      "3\" Suspension lift",
-      "33\" Mud-terrain tires",
-      "9,500lb Winch with synthetic line",
-      "Front and rear steel bumpers",
+      "3\" BDS Suspension lift, JKS swaybar disconnects, Advanced Adapters Slip Yoke Eliminator",
+      "33x12.5R15 Interco Super Swamper TSL TRXUS",
+      "Pink Barn aluminum puck body lift",
+      "Paramount Automotive front and rear steel bumpers",
       "LED headlight conversion"
     ],
     futurePlans: "Armor! Differential skids and beefier rock sliders are coming soon.",
@@ -134,12 +134,12 @@ export const projectVehicles: Vehicle[] = [
     description: "Classic XJ boxy goodness. Built for rock crawling and technical trails.",
     modifications: [
       "4.5\" Long arm suspension lift",
-      "35\" Mud-terrain tires",
+      "32x11.5R15 BFG KM2 tires",
       "Dana 44 rear axle swap",
       "Slip-yoke eliminator (SYE)",
-      "Cut and fold rear quarters"
+      "Sportrack roof rack"
     ],
-    futurePlans: "Roll cage and harness for more aggressive wheeling.",
+    futurePlans: "SOLD",
     shortStory: "This XJ has seen a lot of rocks. It's beaten and bruised, but it never stops. The long arm kit made a massive difference in articulation.",
     heroImage: "/assets/auto/cherokee-xj-hero.png",
     gallery: [
@@ -153,14 +153,14 @@ export const projectVehicles: Vehicle[] = [
     model: "Toyota Pickup (Hilux) 22R",
     description: "The ultimate crawler. More tractor than truck at this point.",
     modifications: [
-      "Straight axle swap (SAS)",
-      "37\" Maxxis Trepador tires",
-      "Dual transfer cases (Marlin Crawler)",
-      "Full internal roll cage",
-      "Hydro-assist steering"
+      "Fozzy Locker in the rear",
+      "33x12.5R15 Super Swamper TSL Radial",
+      "Beerbuilt 2\" drop hanger and shackle combo",
+      "'77 CJ5 leaf springs front, 1984 Jeep Waggie's rear springs, RTI 1050",
+      "Built 22R, Crane Compucam, Hedman Header, Weber 32/36 DGAV Carburetor, Centerforce III Dual Friction Clutch, MSD Ignition"
     ],
-    futurePlans: "Maybe a turbo setup for the 22R, but the dual cases make the low range insane already.",
-    shortStory: "This truck is older than me but still going strong. The crawl ratio with the dual cases is something you have to experience to believe.",
+    futurePlans: "SOLD",
+    shortStory: "This truck was unstopable, had all the right mods to make it capable.",
     heroImage: "/assets/auto/toyota-82-hero.jpg",
     gallery: [
       "/assets/auto/toyota-82-hero.jpg",
