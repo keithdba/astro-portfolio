@@ -61,9 +61,20 @@ export const projectVehicles: Vehicle[] = [
     ],
     futurePlans: "Sold",
     shortStory: "Most people think it's just another commuter car until they hear the turbo spool. The Stratified tune really wakes up the 2.0L EcoBoost engine.",
-    heroImage: "/assets/auto/fusion-sport-hero.png",
+    heroImage: "/assets/auto/fusion-se-hero.jpeg",
     gallery: [
-      "/assets/auto/fusion-sport-hero.png"
+      "/assets/auto/fusion-se-hero.jpeg",
+      "/assets/auto/fusion-se-DSC_5183.jpeg",
+      "/assets/auto/fusion-se-Field1.jpeg",
+      "/assets/auto/fusion-se-fish-creek.jpeg",
+      "/assets/auto/fusion-se-fusion2.jpg",
+      "/assets/auto/fusion-se-fusion4_new.jpg",
+      "/assets/auto/fusion-se-IMG_0336.jpg",
+      "/assets/auto/fusion-se-IMG_3672.jpg",
+      "/assets/auto/fusion-se-logo.jpeg",
+      "/assets/auto/fusion-se-Steeda-RSB2-1024x768.jpeg",
+      "/assets/auto/fusion-se-Strut Tower Brace.JPG",
+      "/assets/auto/fusion-se-WoW3.jpeg"
     ]
   },
   {
