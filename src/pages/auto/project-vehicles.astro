@@ -245,32 +245,33 @@ import { projectVehicles } from '../../data/project-vehicles';
     font-family: var(--font-body);
   }
 
-  /* ── TOP NAVIGATION ────────────────────────────────────────────────────── */
+  /* ── TOP NAVIGATION - Unified Segmented Style ──────────────────────────── */
   .auto-tabs {
-    display: flex;
-    gap: 1rem;
+    display: inline-flex;
+    background: #f1f5f9;
+    padding: 4px;
+    border-radius: 12px;
+    gap: 2px;
     margin-bottom: 2rem;
-    border-bottom: 1px solid var(--glass-border);
-    padding-bottom: 0.5rem;
+    border: 1px solid rgba(0, 0, 0, 0.05);
   }
   .auto-tab {
-    text-decoration: none;
-    color: var(--text-muted);
+    display: block;
+    padding: 0.625rem 1.75rem;
+    font-size: 0.75rem;
     font-weight: 600;
-    padding: 0.75rem 1.5rem;
-    border-radius: 4px;
-    transition: all 0.2s ease;
+    color: #64748b;
+    text-decoration: none;
     text-transform: uppercase;
-    letter-spacing: 1px;
-    font-size: 0.9rem;
-    border: 1px solid transparent;
+    letter-spacing: 0.05em;
+    border-radius: 8px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  .auto-tab:hover { color: var(--text-main); background: rgba(0,0,0,0.03); }
+  .auto-tab:hover:not(.active) { color: #0f172a; background: rgba(255, 255, 255, 0.5); }
   .auto-tab.active {
-    color: #fff;
-    background: var(--text-main);
-    border-color: var(--text-main);
-    box-shadow: 4px 4px 0px var(--accent);
+    background: #fff;
+    color: var(--tech-blue);
+    box-shadow: 0 4px 12px -4px rgba(30, 168, 236, 0.12), 0 2px 4px -2px rgba(30, 168, 236, 0.04);
   }
 
   /* ── PAGE HERO ─────────────────────────────────────────────────────────── */
@@ -280,7 +281,7 @@ import { projectVehicles } from '../../data/project-vehicles';
     font-size: clamp(2.5rem, 5vw, 4rem);
     font-weight: 800;
     margin-bottom: 0.5rem;
-    background: linear-gradient(to right, #0f172a, var(--accent));
+    background: linear-gradient(to right, var(--accent-graphite), var(--tech-blue));
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -298,50 +299,44 @@ import { projectVehicles } from '../../data/project-vehicles';
     margin-bottom: 2rem;
   }
 
-  /* ── TABS ──────────────────────────────────────────────────────────────── */
+  /* ── VEHICLE SELECTOR TABS - Unified Segmented Style ───────────────────── */
   .tabs-section {
-    margin-bottom: 2rem;
+    margin-bottom: 2.5rem;
     position: sticky;
     top: 1rem;
     z-index: 10;
   }
   .tabs-container {
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(8px);
-    padding: 0.5rem;
-    border-radius: 999px;
-    border: 1px solid var(--glass-border);
     display: flex;
     justify-content: center;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
   }
   .tabs-list {
-    display: flex;
-    gap: 0.5rem;
-    overflow-x: auto;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    padding: 0.25rem;
+    display: inline-flex;
+    background: #f1f5f9;
+    padding: 4px;
+    border-radius: 12px;
+    gap: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    flex-wrap: wrap; 
   }
-  .tabs-list::-webkit-scrollbar { display: none; }
   .tab-btn {
-    padding: 0.6rem 1.5rem;
-    border-radius: 999px;
-    border: none;
     background: transparent;
+    border: none;
+    padding: 0.625rem 1.75rem;
+    font-size: 0.75rem;
     font-weight: 600;
-    color: var(--text-muted);
+    color: #64748b;
     cursor: pointer;
-    transition: all 0.2s ease;
-    white-space: nowrap;
-    font-family: inherit;
-    font-size: 0.95rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 8px;
   }
-  .tab-btn:hover { color: var(--text-main); background: rgba(0,0,0,0.03); }
+  .tab-btn:hover:not(.active) { color: #0f172a; background: rgba(255, 255, 255, 0.5); }
   .tab-btn.active {
-    background: var(--text-main);
-    color: #fff;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    background: #fff;
+    color: var(--tech-blue);
+    box-shadow: 0 4px 12px -4px rgba(30, 168, 236, 0.12), 0 2px 4px -2px rgba(30, 168, 236, 0.04);
   }
 
   /* ── PANELS ────────────────────────────────────────────────────────────── */
@@ -357,6 +352,7 @@ import { projectVehicles } from '../../data/project-vehicles';
     padding: 2.5rem;
     background: #fff;
     border-radius: 2rem;
+    border: 1px solid var(--performance-silver);
   }
   .vehicle-header {
     margin-bottom: 1.5rem;
@@ -364,7 +360,7 @@ import { projectVehicles } from '../../data/project-vehicles';
   .vehicle-year {
     font-size: 1rem;
     font-weight: 700;
-    color: var(--accent);
+    color: var(--tech-blue);
     text-transform: uppercase;
     letter-spacing: 2px;
     display: block;
@@ -374,7 +370,7 @@ import { projectVehicles } from '../../data/project-vehicles';
     font-size: 2.2rem;
     font-weight: 800;
     line-height: 1.1;
-    color: var(--text-main);
+    color: var(--accent-graphite);
     margin: 0;
   }
 
@@ -387,7 +383,7 @@ import { projectVehicles } from '../../data/project-vehicles';
     overflow: hidden;
     box-shadow: 0 10px 30px rgba(0,0,0,0.18);
     margin-bottom: 1rem;
-    background: #0f172a;
+    background: var(--accent-graphite);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -436,13 +432,13 @@ import { projectVehicles } from '../../data/project-vehicles';
     transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
   }
   .gallery-thumb-btn:hover {
-    border-color: var(--accent);
+    border-color: var(--tech-blue);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   }
   .gallery-thumb-btn.active-thumb {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent);
+    border-color: var(--tech-blue);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--tech-blue) 30%, transparent);
   }
   .thumb-img {
     width: 100%;
@@ -454,12 +450,12 @@ import { projectVehicles } from '../../data/project-vehicles';
 
   .gallery-arrow {
     flex: 0 0 auto;
-    width: 36px;
-    height: 36px;
+    width: 46px;
+    height: 46px;
     border-radius: 50%;
-    border: 1px solid var(--glass-border);
+    border: 1px solid var(--performance-silver);
     background: rgba(255,255,255,0.9);
-    color: var(--text-main);
+    color: var(--accent-graphite);
     font-size: 1.4rem;
     line-height: 1;
     cursor: pointer;
@@ -470,9 +466,9 @@ import { projectVehicles } from '../../data/project-vehicles';
     box-shadow: 0 2px 6px rgba(0,0,0,0.06);
   }
   .gallery-arrow:hover {
-    background: var(--text-main);
+    background: var(--accent-graphite);
     color: #fff;
-    border-color: var(--text-main);
+    border-color: var(--accent-graphite);
   }
 
   /* ── CONTENT BELOW GALLERY ─────────────────────────────────────────────── */
@@ -489,7 +485,7 @@ import { projectVehicles } from '../../data/project-vehicles';
     font-size: 1rem;
     font-weight: 700;
     margin-bottom: 0.75rem;
-    color: var(--text-main);
+    color: var(--accent-graphite);
     text-transform: uppercase;
     letter-spacing: 1px;
   }
@@ -504,7 +500,7 @@ import { projectVehicles } from '../../data/project-vehicles';
   }
   .mod-list li::before {
     content: '•';
-    color: var(--accent);
+    color: var(--tech-blue);
     font-weight: bold;
     margin-right: 0.6rem;
     flex-shrink: 0;
@@ -548,7 +544,7 @@ import { projectVehicles } from '../../data/project-vehicles';
     line-height: 1;
     transition: color 0.2s ease;
   }
-  .close-lightbox:hover { color: var(--accent); }
+  .close-lightbox:hover { color: var(--tech-blue); }
 
   /* ── RESPONSIVE ────────────────────────────────────────────────────────── */
   @media (max-width: 768px) {

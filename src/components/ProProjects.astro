@@ -1,0 +1,348 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import VibeProcessArchitecture from './VibeProcessArchitecture.astro';
+
+interface Props {
+  projects: CollectionEntry<'pro'>[];
+}
+
+const { projects } = Astro.props;
+
+// Filter content types
+const architectureEntries = projects.filter(p => p.data.type === 'architecture');
+const processEntry = projects.find(p => p.data.type === 'process-architecture');
+const projectEntries = projects.filter(p => p.data.type === 'uiux-project');
+
+// Determine the global "Overview" content (fallback to first project if not found)
+const overviewProject = projectEntries.find(p => p.id === 'uiux-vibe-coding') || projectEntries[0];
+const { title, subtitle, overview } = overviewProject?.data || { title: 'AI Projects', subtitle: 'Modular Ecosystem', overview: '' };
+---
+
+<div class="projects-wrapper">
+  {/* 1. AI Projects Overview */}
+  <header class="project-header">
+    <h2 class="project-title">{title}</h2>
+    <div class="subtitle-container">
+      <span class="subtitle-line"></span>
+      <p class="project-subtitle">{subtitle}</p>
+    </div>
+    {overview && <p class="project-overview">{overview}</p>}
+  </header>
+
+  {/* 2. Sub-Navigation (Breadcrumb Style) */}
+  <div class="breadcrumb-container">
+    <nav class="breadcrumb-nav" aria-label="Breadcrumb Navigation">
+      <a href="/pro" class="breadcrumb-item">Professional</a>
+      <span class="breadcrumb-separator">→</span>
+      <span class="breadcrumb-item active">AI Projects</span>
+    </nav>
+  </div>
+
+  <div class="ai-nav-container">
+    <nav class="ai-tabs" aria-label="AI Projects Sub-navigation">
+      <button class="ai-tab active" data-ai-tab="architecture">
+        Architecture
+      </button>
+      <button class="ai-tab" data-ai-tab="process">
+        Vibe Coding Process Architecture
+      </button>
+      <button class="ai-tab" data-ai-tab="projects">
+        Projects
+      </button>
+    </nav>
+  </div>
+
+  {/* 3. Panels */}
+  <div class="ai-panels">
+    {/* Architecture Panel */}
+    <div id="ai-panel-architecture" class="ai-panel">
+      {architectureEntries.map((arch) => (
+        <div class="project-sections">
+          {arch.data.sections.map((section, i) => (
+            <section class="project-section">
+              <div class="section-label">
+                <span class="section-index">0{i + 1}</span>
+                <h3 class="section-heading">{section.heading}</h3>
+              </div>
+              <div class="section-content">
+                {section.content.map((block) => {
+                  if (block.type === 'paragraph') return <p class="section-body">{block.text}</p>;
+                  if (block.type === 'subheading') return <h4 class="section-subheading">{block.text}</h4>;
+                  if (block.type === 'list') return (
+                    <ul class="section-bullets">
+                      {block.items.map(bullet => (
+                        <li>{bullet}</li>
+                      ))}
+                    </ul>
+                  );
+                  return null;
+                })}
+              </div>
+            </section>
+          ))}
+        </div>
+      ))}
+    </div>
+
+    {/* Process Architecture Panel */}
+    <div id="ai-panel-process" class="ai-panel" hidden>
+      {processEntry && (
+        <VibeProcessArchitecture entry={processEntry} />
+      )}
+    </div>
+
+    {/* Projects Panel */}
+    <div id="ai-panel-projects" class="ai-panel" hidden>
+      {projectEntries.map((project) => (
+        <article class="project-doc">
+          <div class="project-sections">
+            {project.data.sections.map((section, i) => (
+              <section class="project-section">
+                <div class="section-label">
+                  <span class="section-index">0{i + 1}</span>
+                  <h3 class="section-heading">{section.heading}</h3>
+                </div>
+                <div class="section-content">
+                  {section.content.map((block) => {
+                    if (block.type === 'paragraph') return <p class="section-body">{block.text}</p>;
+                    if (block.type === 'subheading') return <h4 class="section-subheading">{block.text}</h4>;
+                    if (block.type === 'list') return (
+                      <ul class="section-bullets">
+                        {block.items.map(bullet => (
+                          <li>{bullet}</li>
+                        ))}
+                      </ul>
+                    );
+                    return null;
+                  })}
+                </div>
+              </section>
+            ))}
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+</div>
+
+<script>
+  const tabs = document.querySelectorAll<HTMLButtonElement>('.ai-tab');
+  const panels = document.querySelectorAll<HTMLElement>('.ai-panel');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.aiTab;
+
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+
+      panels.forEach(panel => {
+        if (panel.id === `ai-panel-${target}`) {
+          panel.removeAttribute('hidden');
+        } else {
+          panel.setAttribute('hidden', '');
+        }
+      });
+    });
+  });
+</script>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+  .projects-wrapper {
+    font-family: 'Inter', sans-serif;
+    max-width: 1100px;
+    margin: 0 auto;
+    color: #334155;
+    padding-bottom: 6rem;
+  }
+
+  /* 1. Project Header */
+  .project-header {
+    margin-bottom: 4rem;
+    padding-bottom: 0;
+  }
+
+  .project-title {
+    font-size: clamp(2.5rem, 6vw, 4.25rem);
+    font-weight: 800;
+    letter-spacing: -0.05em;
+    line-height: 1.05;
+    color: var(--accent-graphite);
+    margin-bottom: 1.5rem;
+  }
+
+  .subtitle-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .subtitle-line {
+    width: 40px;
+    height: 1px;
+    background: #cbd5e1;
+  }
+
+  .project-subtitle {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #64748b;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .project-overview {
+    font-size: 1.125rem;
+    line-height: 1.8;
+    color: #475569;
+    max-width: 860px;
+    font-weight: 400;
+  }
+
+  /* 2. Sub-Navigation (Segmented Control) */
+  .ai-nav-container {
+    margin-bottom: 4rem;
+  }
+
+  .ai-tabs {
+    display: inline-flex;
+    background: #f1f5f9;
+    padding: 4px;
+    border-radius: 12px;
+    gap: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  .ai-tab {
+    background: transparent;
+    border: none;
+    padding: 0.625rem 1.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 8px;
+  }
+
+  .ai-tab:hover:not(.active) {
+    color: #0f172a;
+    background: rgba(255, 255, 255, 0.5);
+  }
+
+  .ai-tab.active {
+    background: #fff;
+    color: var(--tech-blue);
+    box-shadow: 0 4px 12px -4px rgba(30, 168, 236, 0.12), 0 2px 4px -2px rgba(30, 168, 236, 0.04);
+  }
+
+  /* 3. Panels */
+  .ai-panel {
+    display: block;
+    animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .ai-panel[hidden] {
+    display: none;
+  }
+
+  @keyframes slideUpFade {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Project Document */
+  .project-doc {
+    margin-bottom: 6rem;
+  }
+
+  .project-doc:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Section Layout */
+  .project-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .project-section {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 4rem;
+    padding: 4rem 0;
+    border-bottom: 1px solid var(--performance-silver);
+    align-items: start;
+    opacity: 0.9;
+  }
+
+  .project-section:last-child {
+    border-bottom: none;
+  }
+
+  .section-label {
+    position: sticky;
+    top: 4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    border-left: 2px solid var(--tech-blue);
+    padding-left: 1.5rem;
+  }
+
+  .section-index {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.75rem;
+    color: var(--tech-blue);
+    letter-spacing: 0.2em;
+    font-weight: 700;
+  }
+
+  /* Section Content */
+  .section-body {
+    font-size: 1.125rem;
+    line-height: 1.8;
+    color: var(--text-main);
+    font-weight: 400;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Breadcrumb Styles */
+  .breadcrumb-container {
+    margin-bottom: 3rem;
+  }
+  .breadcrumb-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    font-family: var(--font-heading);
+  }
+  .breadcrumb-item {
+    color: var(--text-muted);
+    transition: color 0.2s ease;
+  }
+  .breadcrumb-item:hover {
+    color: var(--tech-blue);
+  }
+  .breadcrumb-item.active {
+    color: var(--accent-graphite);
+    pointer-events: none;
+  }
+  .breadcrumb-separator {
+    color: var(--performance-silver);
+    font-size: 1.25rem;
+    font-weight: 300;
+  }
+</style>
+
+

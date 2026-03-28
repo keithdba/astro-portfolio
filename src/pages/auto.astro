@@ -69,13 +69,13 @@ const garageCol = await getCollection('auto');
 .mech-title {
 	font-size: clamp(3rem, 6vw, 5rem);
 	text-transform: uppercase;
-	color: #111;
-	text-shadow: 2px 2px 0px #f59e0b;
+	color: var(--accent-graphite);
+	text-shadow: 2px 2px 0px var(--tech-blue);
 	margin-bottom: 0.5rem;
 }
 
 .mech-subtitle {
-	color: #8b8e98;
+	color: var(--text-muted);
 	font-size: 1.2rem;
 	letter-spacing: 2px;
 	text-transform: uppercase;
@@ -89,10 +89,10 @@ const garageCol = await getCollection('auto');
 	height: 8px;
 	background: repeating-linear-gradient(
 		45deg,
-		#f59e0b,
-		#f59e0b 10px,
-		#111 10px,
-		#111 20px
+		var(--tech-blue),
+		var(--tech-blue) 10px,
+		var(--accent-graphite) 10px,
+		var(--accent-graphite) 20px
 	);
 }
 
@@ -103,45 +103,49 @@ const garageCol = await getCollection('auto');
 	gap: 2.5rem;
 }
 
-/* Tab Navigation */
+/* Tab Navigation - Unified Segmented Control Style */
 .auto-tabs {
-	display: flex;
-	gap: 1rem;
-	margin-bottom: 3rem;
-	border-bottom: 1px solid #e2e8f0;
-	padding-bottom: 0.5rem;
+  display: inline-flex;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 12px;
+  gap: 2px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  margin-bottom: 3rem;
+  font-family: 'Inter', sans-serif; /* Use clean interlaced font for controls */
 }
 
 .auto-tab {
 	text-decoration: none;
-	color: #64748b;
+	background: transparent;
+	border: none;
+	padding: 0.625rem 1.75rem;
+	font-size: 0.75rem;
 	font-weight: 600;
-	padding: 0.75rem 1.5rem;
-	border-radius: 4px;
-	transition: all 0.2s ease;
+	color: #64748b;
+	cursor: pointer;
+	letter-spacing: 0.05em;
 	text-transform: uppercase;
-	letter-spacing: 1px;
-	font-size: 0.9rem;
-	border: 1px solid transparent;
+	transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+	border-radius: 8px;
 }
 
-.auto-tab:hover {
-	color: #0f172a;
-	background: #f8fafc;
+.auto-tab:hover:not(.active) {
+	color: var(--accent-graphite);
+	background: rgba(255, 255, 255, 0.5);
 }
 
 .auto-tab.active {
-	color: #fff;
-	background: #111;
-	border-color: #111;
-	box-shadow: 4px 4px 0px #f59e0b;
+	background: #fff;
+	color: var(--tech-blue);
+	box-shadow: 0 4px 12px -4px rgba(30, 168, 236, 0.12), 0 2px 4px -2px rgba(30, 168, 236, 0.04);
 }
 
 .car-card {
 	display: block;
 	text-decoration: none;
 	background: #ffffff;
-	border: 1px solid #e2e8f0;
+	border: 1px solid var(--performance-silver);
 	border-radius: 4px;
 	overflow: hidden;
 	transition: all 0.3s ease;
@@ -149,9 +153,9 @@ const garageCol = await getCollection('auto');
 }
 
 .car-card:hover {
-	border-color: #f59e0b;
+	border-color: var(--tech-blue);
 	transform: translateY(-5px);
-	box-shadow: 0 10px 30px rgba(245, 158, 11, 0.15);
+	box-shadow: 0 10px 30px rgba(30, 168, 236, 0.15);
 }
 
 .card-image-wrapper {
@@ -188,7 +192,7 @@ const garageCol = await getCollection('auto');
 
 .card-content h2 {
 	font-size: 1.5rem;
-	color: #0f172a;
+	color: var(--accent-graphite);
 	text-transform: uppercase;
 	margin-bottom: 0.5rem;
 	line-height: 1.2;
@@ -196,7 +200,7 @@ const garageCol = await getCollection('auto');
 
 .card-meta {
 	display: inline-block;
-	color: #64748b;
+	color: var(--text-muted);
 	font-size: 0.85rem;
 	letter-spacing: 1px;
 	margin-top: 0.5rem;
@@ -210,11 +214,11 @@ const garageCol = await getCollection('auto');
 	right: 0;
 	width: 20px;
 	height: 20px;
-	background: linear-gradient(135deg, transparent 50%, #e2e8f0 50%);
+	background: linear-gradient(135deg, transparent 50%, var(--performance-silver) 50%);
 	transition: background 0.3s ease;
 }
 
 .car-card:hover::after {
-	background: linear-gradient(135deg, transparent 50%, #f59e0b 50%);
+	background: linear-gradient(135deg, transparent 50%, var(--tech-blue) 50%);
 }
 </style>

@@ -14,8 +14,10 @@
     "sync": "lftp -c 'open -u $FTP_USER,$FTP_PASS $FTP_HOST; mirror -R dist/ public_html/'"
   },
   "dependencies": {
+    "@astrojs/check": "^0.9.8",
     "@astrojs/markdown-remark": "^7.0.0",
     "astro": "^6.0.5",
+    "typescript": "^5.9.3",
     "zod": "^4.3.6"
   },
   "devDependencies": {

@@ -8,6 +8,15 @@ interface Props {
 
 const { title, description } = Astro.props;
 const currentPath = Astro.url.pathname;
+
+// Dynamic Logo Logic
+let logoSrc = "/assets/branding/logo-primary.png";
+const isPro = currentPath.startsWith('/pro');
+const isAuto = currentPath.startsWith('/auto');
+const isHome = currentPath === '/';
+
+if (isPro) logoSrc = "/assets/branding/logo-pro.png";
+else if (isAuto) logoSrc = "/assets/branding/logo-auto.png";
 ---
 
 <!doctype html>
@@ -19,35 +28,237 @@ const currentPath = Astro.url.pathname;
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
-		{currentPath.startsWith('/pro') && (
-			<style is:inline>
-				:root {
-					--accent: #64748b !important;
-					--accent-glow: rgba(100, 116, 139, 0.2) !important;
-				}
-			</style>
-		)}
-		{currentPath.startsWith('/auto') && (
-			<style is:inline>
-				:root {
-					--accent: #4682b4 !important;
-					--accent-glow: rgba(70, 130, 180, 0.2) !important;
-				}
-			</style>
-		)}
 	</head>
 	<body>
 		<div class="container">
 			<header class="nav-header">
-				<a href="/" class="logo">MacDaly.com</a>
+				<a href="/" class="logo" aria-label="MacDaly.com Home">
+          <img src={logoSrc} alt="MacDaly.com" class={`brand-logo ${isHome ? 'is-home' : ''} ${isAuto ? 'is-auto' : ''}`} />
+        </a>
 				<nav class="nav-links">
 					<a href="/pro" class={`nav-link ${currentPath.startsWith('/pro') ? 'active' : ''}`}>Professional</a>
 					<a href="/auto" class={`nav-link ${currentPath.startsWith('/auto') ? 'active' : ''}`}>Automotive</a>
+          <button id="contactModalBtn" class="btn-outline-nav cursor-pointer">Get In Touch</button>
 				</nav>
 			</header>
 			<main>
 				<slot />
 			</main>
+			<footer class="site-footer">
+				<div class="footer-content">
+          <div class="footer-logo-container">
+            <img src="/assets/branding/logo-primary.png" alt="MD Icon" class="footer-brand-icon" />
+          </div>
+					<p class="tagline">Innovate • Automate • Deliver</p>
+					<p class="copyright">&copy; {new Date().getFullYear()} MacDaly.com. All rights reserved.</p>
+				</div>
+			</footer>
 		</div>
+
+    <!-- GLOBAL CONTACT MODAL -->
+    <dialog id="contactModal" class="contact-dialog">
+      <div class="modal-inner">
+        <button class="close-modal" aria-label="Close Modal">&times;</button>
+        <h3>Get In Touch</h3>
+        <p>Send me an email directly. I'll get back to you as soon as possible.</p>
+        <form action="mailto:keith@macdaly.com" method="GET" enctype="text/plain" id="contactForm" class="contact-form">
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" placeholder="Please share your name" required />
+          </div>
+          <div class="form-group">
+            <label for="email">Email address</label>
+            <input type="email" id="email" name="email" placeholder="john@example.com" required />
+          </div>
+          <div class="form-group">
+            <label for="body">Message</label>
+            <textarea id="body" name="body" rows="4" placeholder="How can I help you?" required></textarea>
+          </div>
+          <button type="submit" class="btn-hero-modal btn-dark-modal w-full mt-2">Send Message</button>
+        </form>
+      </div>
+    </dialog>
+
+    <script is:inline>
+      document.addEventListener('DOMContentLoaded', () => {
+        const dialog = document.getElementById('contactModal');
+        const btn = document.getElementById('contactModalBtn');
+        const closeBtn = document.querySelector('.close-modal');
+
+        if (btn && dialog && closeBtn) {
+          btn.addEventListener('click', () => {
+            const rect = btn.getBoundingClientRect();
+            const dialogWidth = Math.min(450, window.innerWidth * 0.9);
+            let leftPos = rect.right - dialogWidth;
+            if (leftPos < 16) leftPos = 16;
+            
+            dialog.style.margin = '0';
+            dialog.style.position = 'fixed';
+            dialog.style.top = `${rect.bottom + 12}px`;
+            dialog.style.left = `${leftPos}px`;
+            dialog.showModal();
+          });
+          
+          closeBtn.addEventListener('click', () => dialog.close());
+          dialog.addEventListener('click', (e) => {
+            const dim = dialog.getBoundingClientRect();
+            if (e.clientX < dim.left || e.clientX > dim.right || e.clientY < dim.top || e.clientY > dim.bottom) {
+              dialog.close();
+            }
+          });
+        }
+      });
+    </script>
 	</body>
 </html>
+
+<style>
+	.site-footer {
+		margin-top: 5rem;
+		padding: 3rem 0;
+		border-top: 1px solid var(--glass-border);
+		text-align: center;
+	}
+  .footer-logo-container {
+    margin-bottom: 1.5rem;
+  }
+  .footer-brand-icon {
+    width: 100px;
+    height: auto;
+    opacity: 0.9;
+  }
+	.tagline {
+		font-family: var(--font-heading);
+		text-transform: uppercase;
+		letter-spacing: 2px;
+		font-weight: 600;
+		color: var(--accent-graphite);
+		margin-bottom: 0.5rem;
+	}
+	.copyright {
+		color: var(--text-muted);
+		font-size: 0.875rem;
+	}
+
+  /* Brand Logo Sizing - Massive Branding, Thin Bar aesthetic */
+  .brand-logo {
+    display: block;
+    height: 120px; /* Base height for Pro/Other */
+    width: auto;
+    object-fit: contain;
+    transition: all var(--transition-slow);
+  }
+
+  /* Brand Logo Sizing - Standardized Site-wide */
+  .brand-logo {
+    display: block;
+    height: 120px; /* Standard Pro/Global height */
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 10px 30px rgba(0,0,0,0.06));
+    margin-bottom: 0.15rem;
+    /* Removed transition to prevent 'shrinking' effect on reload */
+  }
+
+  /* Flagship Upscale (+40%) - Fixed and Locked */
+  .brand-logo.is-home, .brand-logo.is-auto {
+    height: 170px !important; /* Forces large size from frame 1 */
+  }
+  
+  @media (max-width: 900px) {
+    .brand-logo { height: 90px; }
+    .brand-logo.is-home, .brand-logo.is-auto { height: 130px !important; }
+  }
+  @media (max-width: 600px) {
+    .brand-logo { height: 70px; }
+    .brand-logo.is-home, .brand-logo.is-auto { height: 100px !important; }
+  }
+
+  /* Nav Extras */
+  .btn-outline-nav {
+    border: 1px solid var(--accent-graphite);
+    padding: 0.5rem 1.25rem;
+    border-radius: 99px;
+    transition: all 0.2s ease;
+    font-family: var(--font-heading);
+    font-size: 0.9rem;
+    font-weight: 600;
+    background: transparent;
+    cursor: pointer;
+  }
+  .btn-outline-nav:hover {
+    background: var(--accent-graphite);
+    color: #ffffff;
+  }
+
+  /* GLOBAL MODAL STYLES */
+  .contact-dialog {
+    padding: 0;
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    max-width: 450px;
+    width: 90%;
+    background: #ffffff;
+    font-family: var(--font-body);
+    color: var(--accent-graphite);
+  }
+  .contact-dialog[open] {
+    animation: popOut 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  @keyframes popOut {
+    0% { transform: scale(0.95); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .contact-dialog::backdrop {
+    background: rgba(42, 42, 42, 0.4);
+    backdrop-filter: blur(4px);
+  }
+  .modal-inner {
+    padding: 2.5rem 2rem;
+    position: relative;
+  }
+  .close-modal {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: transparent;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: var(--text-muted);
+  }
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+  }
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .form-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-main);
+  }
+  .form-group input, .form-group textarea {
+    padding: 0.8rem;
+    border: 1px solid var(--performance-silver);
+    border-radius: 6px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .btn-hero-modal {
+    background: var(--tech-blue);
+    color: white;
+    padding: 1rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 1rem;
+  }
+</style>

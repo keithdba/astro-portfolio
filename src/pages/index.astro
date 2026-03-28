@@ -4,29 +4,21 @@ import Layout from '../layouts/Layout.astro';
 
 <Layout title="Keith MacDaly | Portfolio Gateway" description="Enterprise Architect and Automotive Enthusiast">
   
-  <header class="page-header">
-    <div class="brand">KEITH MACDALY | PROFESSIONAL PROFILE & AUTO ENTHUSIAST</div>
-    <nav class="page-nav">
-      <a href="/">Home</a>
-      <a href="/pro">Projects</a>
-      <a href="/about">About</a>
-      <button id="contactModalBtn" class="btn-outline-nav cursor-pointer">Get In Touch</button>
-    </nav>
-  </header>
 
   <main class="page-container">
     
     <!-- 1. HERO SECTION -->
+
     <section class="hero-section">
       
       <!-- Left Column: Enterprise Architect -->
       <div class="hero-col col-pro">
         <div class="col-content">
-          <h2>Enterprise Architect</h2>
+          <h2>Technology Leadership</h2>
           <ul class="hero-list">
             <li>Systems Architecture</li>
             <li>Cloud Strategy</li>
-            <li>Digital Transformation</li>
+            <li>AI Adoption</li>
             <li>Technical Leadership</li>
           </ul>
         </div>
@@ -139,122 +131,19 @@ import Layout from '../layouts/Layout.astro';
 
     </section>
 
-    <!-- 3. CONTACT MODAL -->
-    <dialog id="contactModal" class="contact-dialog">
-      <div class="modal-inner">
-        <button class="close-modal" aria-label="Close Modal">&times;</button>
-        <h3>Get In Touch</h3>
-        <p>Send me an email directly. I'll get back to you as soon as possible.</p>
-        <form action="mailto:keith@macdaly.com" method="GET" enctype="text/plain" id="contactForm" class="contact-form">
-          <div class="form-group">
-            <label for="name">Name</label>
-            <input type="text" id="name" name="name" placeholder="Please share your name" required />
-          </div>
-          <div class="form-group">
-            <label for="email">Email address</label>
-            <input type="email" id="email" name="email" placeholder="john@example.com" required />
-          </div>
-          <div class="form-group">
-            <label for="body">Message</label>
-            <textarea id="body" name="body" rows="4" placeholder="How can I help you?" required></textarea>
-          </div>
-          <button type="submit" class="btn-hero btn-dark w-full mt-2">Send Message</button>
-        </form>
-      </div>
-    </dialog>
-
   </main>
-
-  <script>
-    const dialog = document.getElementById('contactModal');
-    const btn = document.getElementById('contactModalBtn');
-    const closeBtn = document.querySelector('.close-modal');
-
-    if (btn && dialog && closeBtn) {
-      btn.addEventListener('click', () => {
-        // Calculate viewport coords of the button
-        const rect = btn.getBoundingClientRect();
-        // Dialog width is 450px or 90vw
-        const dialogWidth = Math.min(450, window.innerWidth * 0.9);
-        
-        let leftPos = rect.right - dialogWidth;
-        if (leftPos < 16) leftPos = 16; // Prevent edge cutoff
-        
-        dialog.style.margin = '0';
-        dialog.style.position = 'fixed';
-        dialog.style.top = `${rect.bottom + 12}px`;
-        dialog.style.left = `${leftPos}px`;
-        
-        dialog.showModal();
-      });
-      
-      closeBtn.addEventListener('click', () => dialog.close());
-      // Close when clicking empty backdrop
-      dialog.addEventListener('click', (e) => {
-        const dialogDimensions = dialog.getBoundingClientRect();
-        if (
-          e.clientX < dialogDimensions.left ||
-          e.clientX > dialogDimensions.right ||
-          e.clientY < dialogDimensions.top ||
-          e.clientY > dialogDimensions.bottom
-        ) {
-          dialog.close();
-        }
-      });
-    }
-  </script>
 </Layout>
 
 <style>
-  /* Base Container */
-  .page-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem 1.5rem;
-    font-family: var(--font-body);
-    color: #0f172a;
-  }
-
-  /* Header */
-  .page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem 1.5rem;
-    border-bottom: 1px solid #e2e8f0;
-    font-family: var(--font-body);
-  }
-  
-  .brand {
-    font-weight: 800;
-    font-size: 1.1rem;
-    color: #0f172a;
-    letter-spacing: -0.02em;
-  }
-
-  .page-nav {
-    display: flex;
-    gap: 1.5rem;
-    align-items: center;
-  }
-
-  .page-nav a {
-    text-decoration: none;
-    color: #0f172a;
-    font-weight: 500;
-    font-size: 0.95rem;
-  }
-  
   .cursor-pointer { cursor: pointer; }
   .btn-outline-nav {
-    border: 1px solid #0f172a;
-    padding: 0.4rem 1rem;
-    border-radius: 6px;
+    border: 1px solid var(--accent-graphite);
+    padding: 0.5rem 1.25rem;
+    border-radius: 99px;
     transition: all 0.2s ease;
     font-family: inherit;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
+    font-weight: 600;
     background: transparent;
   }
 
@@ -291,18 +180,26 @@ import Layout from '../layouts/Layout.astro';
 
   /* Hero Column Styling */
   .col-pro {
-    background: #e2e8f0; /* Light Grey Block */
-    color: #0f172a;
-    box-shadow: 0 10px 30px rgba(226, 232, 240, 0.4);
+    background: var(--performance-silver);
+    color: var(--accent-graphite);
+    opacity: 0.9;
   }
-  .col-pro h2 { color: #0f172a; }
-  .col-pro .hero-list li { border-bottom: 1px solid rgba(15, 23, 42, 0.1); }
-
   .col-center {
-    background: #ffffff; /* White Block */
-    border: 1px solid #e2e8f0;
-    color: #0f172a;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+    background: #ffffff;
+    border: 1px solid var(--performance-silver);
+    color: var(--accent-graphite);
+  }
+  .col-auto {
+    background: var(--tech-blue);
+    color: #ffffff;
+  }
+  .col-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 800;
+    margin-bottom: 2rem;
+    opacity: 0.8;
   }
 
   .col-auto {
@@ -311,7 +208,11 @@ import Layout from '../layouts/Layout.astro';
     box-shadow: 0 10px 30px rgba(176, 196, 222, 0.4);
   }
   .col-auto h2 { color: #0f172a; }
-  .col-auto .hero-list li { border-bottom: 1px solid rgba(15, 23, 42, 0.1); }
+
+  .col-pro .hero-list li,
+  .col-auto .hero-list li { 
+    border-bottom: 1px solid rgba(15, 23, 42, 0.1); 
+  }
 
   /* Hero Typography */
   h1 {
@@ -346,7 +247,7 @@ import Layout from '../layouts/Layout.astro';
   .hero-list li {
     padding: 0.75rem 0;
     font-size: 1rem;
-    font-weight: 500;
+    font-weight: 600;
   }
   .hero-list li:last-child {
     border-bottom: none !important;
@@ -376,29 +277,29 @@ import Layout from '../layouts/Layout.astro';
   }
   
   .btn-pro {
-    background: #0f172a;
+    background: var(--accent-graphite);
     color: #ffffff;
   }
-  .btn-pro:hover { background: #1e293b; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transform: translateY(-2px); }
+  .btn-pro:hover { background: #000; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transform: translateY(-2px); }
 
   .btn-auto {
-    background: #0f172a;
-    color: #ffffff;
+    background: #ffffff;
+    color: var(--tech-blue);
   }
-  .btn-auto:hover { background: #1e293b; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transform: translateY(-2px); }
+  .btn-auto:hover { background: #f8fafc; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transform: translateY(-2px); }
 
   .btn-dark {
-    background: #0f172a;
+    background: var(--tech-blue);
     color: #ffffff;
   }
-  .btn-dark:hover { background: #1e293b; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transform: translateY(-2px); }
+  .btn-dark:hover { background: #1a94d1; box-shadow: 0 4px 15px rgba(30, 168, 236, 0.4); transform: translateY(-2px); }
 
   .btn-outline {
     background: transparent;
-    border: 1px solid #cbd5e1;
-    color: #0f172a;
+    border: 1px solid var(--performance-silver);
+    color: var(--accent-graphite);
   }
-  .btn-outline:hover { border-color: #0f172a; }
+  .btn-outline:hover { border-color: var(--tech-blue); color: var(--tech-blue); }
 
   /* 2. SECONDARY GRID */
   .secondary-grid {
@@ -669,4 +570,5 @@ import Layout from '../layouts/Layout.astro';
 
   .w-full { width: 100%; }
   .mt-2 { margin-top: 0.5rem; }
+
 </style>

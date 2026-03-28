@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import ResumeTimeline from '../components/ResumeTimeline.astro';
+import ProProjects from '../components/ProProjects.astro';
 import { getCollection } from 'astro:content';
 
 const proCol = await getCollection('pro');
@@ -12,5 +13,87 @@ if (!resumeEntry) {
 ---
 
 <Layout title="Executive Profile | MacDaly.com" description="Professional portfolio, resume, and speaking engagements.">
-	<ResumeTimeline resume={resumeEntry} />
+  
+  <nav class="pro-tabs" aria-label="Professional Section Navigation">
+    <button class="pro-tab active" data-tab="resume" id="tab-resume">Executive Profile</button>
+    <button class="pro-tab" data-tab="uiux" id="tab-uiux">AI & Vibe Coding Projects</button>
+  </nav>
+
+  <div id="panel-resume" class="pro-panel">
+    <ResumeTimeline resume={resumeEntry} />
+  </div>
+
+  <div id="panel-uiux" class="pro-panel" hidden>
+    <ProProjects projects={proCol} />
+  </div>
+
 </Layout>
+
+<style>
+  .pro-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 4rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    padding-bottom: 0;
+    max-width: 1100px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .pro-tab {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 0.875rem 1.5rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+    margin-bottom: -1px;
+    border-radius: 0;
+  }
+
+  .pro-tab:hover {
+    color: #0f172a;
+  }
+
+  .pro-tab.active {
+    color: #0f172a;
+    border-bottom-color: #0f172a;
+  }
+
+  .pro-panel {
+    display: block;
+  }
+
+  .pro-panel[hidden] {
+    display: none;
+  }
+</style>
+
+<script>
+  const tabs = document.querySelectorAll<HTMLButtonElement>('.pro-tab');
+  const panels = document.querySelectorAll<HTMLElement>('.pro-panel');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.tab;
+
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+
+      panels.forEach(panel => {
+        if (panel.id === `panel-${target}`) {
+          panel.removeAttribute('hidden');
+        } else {
+          panel.setAttribute('hidden', '');
+        }
+      });
+    });
+  });
+</script>
