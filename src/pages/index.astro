@@ -1,5 +1,34 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+const proEntries = await getCollection('pro');
+
+const arcEntry = proEntries.find(e => e.id === 'vibe-coding-architecture')?.data;
+const procEntry = proEntries.find(e => e.id === 'vibe-coding-process')?.data;
+const uiuxEntry = proEntries.find(e => e.id === 'uiux-vibe-coding')?.data;
+
+// Filter the 3 specific entries for the blog section
+const blogEntries = [
+  { 
+    id: 'architecture', 
+    title: arcEntry?.title || 'System Architecture', 
+    date: 'Mar 28, 2026',
+    excerpt: arcEntry?.subtitle || 'A full-stack AI-native architecture designed to minimize the distance between human intent and functional reality.'
+  },
+  { 
+    id: 'process', 
+    title: procEntry?.title || 'Process Architecture', 
+    date: 'Mar 25, 2026',
+    excerpt: procEntry?.subtitle || 'Human-directed, agentic, AI-native delivery model.'
+  },
+  { 
+    id: 'projects', 
+    title: uiuxEntry?.title || 'Vibe Coding Projects', 
+    date: 'Mar 20, 2026',
+    excerpt: uiuxEntry?.overview || uiuxEntry?.subtitle || 'Early experiments in AI-native workflows.'
+  }
+];
 ---
 
 <Layout title="Keith MacDaly | Portfolio Gateway" description="Enterprise Architect and Automotive Enthusiast">
@@ -114,18 +143,13 @@ import Layout from '../layouts/Layout.astro';
       <div class="grid-tile tile-blog">
         <h3>Recent Blog</h3>
         <div class="blog-previews">
-          <a href="#" class="blog-card">
-            <h4>Post Title - Enaoning Marketing Post Title</h4>
-            <span class="blog-date">Oct 12, 2024</span>
-          </a>
-          <a href="#" class="blog-card">
-            <h4>Post Title - Crafting Trenter in Digital Landscapes</h4>
-            <span class="blog-date">Sep 28, 2024</span>
-          </a>
-          <a href="#" class="blog-card">
-            <h4>Post Title - Streaming Post Title</h4>
-            <span class="blog-date">Sep 05, 2024</span>
-          </a>
+          {blogEntries.map(blog => (
+            <a href={`/pro#${blog.id}`} class="blog-card">
+              <h4>{blog.title}</h4>
+              <p class="blog-excerpt">{blog.excerpt}</p>
+              <span class="blog-date">{blog.date}</span>
+            </a>
+          ))}
         </div>
       </div>
 
@@ -447,6 +471,16 @@ import Layout from '../layouts/Layout.astro';
     color: #0f172a;
     line-height: 1.4;
     margin: 0 0 0.5rem 0;
+  }
+  .blog-excerpt {
+    font-size: 0.9rem;
+    color: #475569;
+    line-height: 1.5;
+    margin: 0 0 1rem 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
   .blog-date {
     font-size: 0.85rem;

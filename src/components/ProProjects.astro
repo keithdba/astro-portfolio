@@ -129,23 +129,47 @@ const { title, subtitle, overview } = overviewProject?.data || { title: 'AI Proj
   const tabs = document.querySelectorAll<HTMLButtonElement>('.ai-tab');
   const panels = document.querySelectorAll<HTMLElement>('.ai-panel');
 
+  function activateTab(tabId: string) {
+    const tabToActivate = Array.from(tabs).find(t => t.dataset.aiTab === tabId);
+    if (!tabToActivate) return;
+
+    tabs.forEach(t => t.classList.remove('active'));
+    tabToActivate.classList.add('active');
+
+    panels.forEach(panel => {
+      if (panel.id === `ai-panel-${tabId}`) {
+        panel.removeAttribute('hidden');
+      } else {
+        panel.setAttribute('hidden', '');
+      }
+    });
+
+    // Scroll to the tabs section if a hash was provided
+    if (window.location.hash) {
+      tabToActivate.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
   tabs.forEach(tab => {
     tab.addEventListener('click', () => {
       const target = tab.dataset.aiTab;
-
-      tabs.forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-
-      panels.forEach(panel => {
-        if (panel.id === `ai-panel-${target}`) {
-          panel.removeAttribute('hidden');
-        } else {
-          panel.setAttribute('hidden', '');
-        }
-      });
+      if (target) activateTab(target);
     });
   });
+
+  // Handle initial hash on load
+  window.addEventListener('load', () => {
+    const hash = window.location.hash.replace('#', '');
+    if (hash) activateTab(hash);
+  });
+
+  // Handle hash change
+  window.addEventListener('hashchange', () => {
+    const hash = window.location.hash.replace('#', '');
+    if (hash) activateTab(hash);
+  });
 </script>
+
 
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');

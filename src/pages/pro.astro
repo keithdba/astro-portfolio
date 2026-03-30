@@ -80,20 +80,44 @@ if (!resumeEntry) {
   const tabs = document.querySelectorAll<HTMLButtonElement>('.pro-tab');
   const panels = document.querySelectorAll<HTMLElement>('.pro-panel');
 
+  function activateProTab(tabId: string) {
+    const tabToActivate = Array.from(tabs).find(t => t.dataset.tab === tabId);
+    if (!tabToActivate) return;
+
+    tabs.forEach(t => t.classList.remove('active'));
+    tabToActivate.classList.add('active');
+
+    panels.forEach(panel => {
+      if (panel.id === `panel-${tabId}`) {
+        panel.removeAttribute('hidden');
+      } else {
+        panel.setAttribute('hidden', '');
+      }
+    });
+  }
+
   tabs.forEach(tab => {
     tab.addEventListener('click', () => {
       const target = tab.dataset.tab;
-
-      tabs.forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-
-      panels.forEach(panel => {
-        if (panel.id === `panel-${target}`) {
-          panel.removeAttribute('hidden');
-        } else {
-          panel.setAttribute('hidden', '');
-        }
-      });
+      if (target) activateProTab(target);
     });
   });
+
+  // Handle initial hash on load - if hash is one of the AI sub-tabs, show the AI Projects tab
+  const aiSubTabs = ['architecture', 'process', 'projects'];
+  window.addEventListener('load', () => {
+    const hash = window.location.hash.replace('#', '');
+    if (aiSubTabs.includes(hash)) {
+      activateProTab('uiux');
+    }
+  });
+
+  // Handle hash change
+  window.addEventListener('hashchange', () => {
+    const hash = window.location.hash.replace('#', '');
+    if (aiSubTabs.includes(hash)) {
+      activateProTab('uiux');
+    }
+  });
 </script>
+
