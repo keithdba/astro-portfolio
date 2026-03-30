@@ -27,25 +27,36 @@ const garageCol = await getCollection('auto');
 		</nav>
 
 		<div class="garage-grid">
-			{garageCol.map((car) => (
-				<a class="car-card" href={`/auto/${car.id}`} key={car.id}>
-					<div class="card-image-wrapper">
-						<Image 
-							src={car.data.placeholderImage} 
-							alt={`Photo of ${car.data.name}`} 
-							width={800}
-							height={450}
-							class="card-image"
-						/>
-						<div class="card-overlay"></div>
-					</div>
-					<div class="card-content">
-						<h2>{car.data.name}</h2>
-						<span class="card-meta">CHASSIS: {car.data.year} | CLASSIFICATION: {car.data.type}</span>
-					</div>
-				</a>
-			))}
+			<a class="car-card" href="/auto/project-vehicles">
+				<div class="card-image-wrapper">
+					<img 
+						src="/assets/auto/garage-projects.jpg" 
+						alt="Project Vehicles" 
+						class="card-image"
+					/>
+					<div class="card-overlay"></div>
+				</div>
+				<div class="card-content">
+					<h2>Project Vehicles</h2>
+					<span class="card-meta">DETAILED BUILDS // PERFORMANCE TUNING</span>
+				</div>
+			</a>
+			<a class="car-card" href="/auto/products">
+				<div class="card-image-wrapper">
+					<img 
+						src="/assets/auto/garage-products.jpg" 
+						alt="Product Reviews" 
+						class="card-image"
+					/>
+					<div class="card-overlay"></div>
+				</div>
+				<div class="card-content">
+					<h2>Product Reviews</h2>
+					<span class="card-meta">STAGED RELEASES // COMING SOON</span>
+				</div>
+			</a>
 		</div>
+
 	</div>
 </Layout>
 

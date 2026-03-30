@@ -1,0 +1,133 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="Product Reviews | Coming Soon" description="Aftermarket products and digital downloads.">
+  <div class="auto-container">
+    <header class="auto-header">
+      <h1 class="mech-title">Product Reviews</h1>
+      <p class="mech-subtitle">Aftermarket // Components // Staged</p>
+      <div class="caution-tape"></div>
+    </header>
+
+    <div class="coming-soon-wrapper">
+      <div class="coming-soon-card">
+        <h2 class="status-heading">Status: IN_PROGRESS</h2>
+        <div class="binary-code">10110111 01101101 01111100</div>
+        <p class="announcement">New mechanical products and digital kits are currently under development. This section will launch with the next build phase.</p>
+        <a href="/auto" class="back-link">&larr; Return to Garage</a>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+  .auto-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-bottom: 5rem;
+    font-family: 'Share Tech Mono', monospace; 
+  }
+
+  .auto-header {
+    margin-bottom: 4rem;
+    position: relative;
+    padding-bottom: 2rem;
+  }
+
+  .mech-title {
+    font-size: clamp(3rem, 6vw, 5rem);
+    text-transform: uppercase;
+    color: var(--accent-graphite);
+    text-shadow: 2px 2px 0px var(--tech-blue);
+    margin-bottom: 0.5rem;
+  }
+
+  .mech-subtitle {
+    color: var(--text-muted);
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .caution-tape {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 8px;
+    background: repeating-linear-gradient(
+      45deg,
+      var(--tech-blue),
+      var(--tech-blue) 10px,
+      var(--accent-graphite) 10px,
+      var(--accent-graphite) 20px
+    );
+  }
+
+  .coming-soon-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 40vh;
+  }
+
+  .coming-soon-card {
+    background: #ffffff;
+    border: 1px solid var(--performance-silver);
+    padding: 3rem;
+    border-radius: 4px;
+    max-width: 600px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .coming-soon-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--tech-blue);
+  }
+
+  .status-heading {
+    font-size: 2rem;
+    color: var(--tech-blue);
+    margin-bottom: 1rem;
+    letter-spacing: 2px;
+  }
+
+  .binary-code {
+    font-size: 0.9rem;
+    color: var(--performance-silver);
+    margin-bottom: 1.5rem;
+    letter-spacing: 4px;
+  }
+
+  .announcement {
+    color: var(--text-main);
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+  }
+
+  .back-link {
+    display: inline-block;
+    color: var(--accent-graphite);
+    text-decoration: none;
+    font-weight: 700;
+    border-bottom: 2px solid var(--tech-blue);
+    padding-bottom: 2px;
+    transition: all 0.2s ease;
+  }
+
+  .back-link:hover {
+    color: var(--tech-blue);
+    border-color: var(--accent-graphite);
+  }
+</style>
