@@ -14,9 +14,12 @@
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule ^(.*)/$ /$1 [L,R=301]
 
-  # Tell Apache to look for index.html implicitly
-  DirectoryIndex index.html
-
   # Custom 404 Error Page
   # ErrorDocument 404 /404.html
+
+  # SSR Configuration
+  # Passenger is typically enabled via the cPanel UI, but this ensures fallback
+  PassengerEnabled on
+  PassengerAppType node
+  PassengerStartupFile app.js
 </IfModule>
