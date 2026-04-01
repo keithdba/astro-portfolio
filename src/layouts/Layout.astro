@@ -131,15 +131,35 @@ else if (isAuto) logoSrc = "/assets/branding/logo-auto.png";
             const data = Object.fromEntries(formData.entries());
 
             try {
-              const response = await fetch('/api/contact', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data),
-              });
+              let result;
+              let responseOk = false;
 
-              const result = await response.json();
+              // Local Mocking for Dev Server
+              if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                console.log('--- LOCAL DEV MOCK ---');
+                console.log('Form submission intercepted. Data:', data);
+                await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network lag
+                result = { message: 'Local Dev success! (Submission mocked for localhost)' };
+                responseOk = true;
+              } else {
+                const response = await fetch('/contact.php', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(data),
+                });
 
-              if (response.ok) {
+                // Check for valid JSON response before parsing
+                const text = await response.text();
+                try {
+                  result = JSON.parse(text);
+                } catch (e) {
+                  console.error('Invalid response from server:', text);
+                  throw new Error('There was a problem with the server response.');
+                }
+                responseOk = response.ok;
+              }
+
+              if (responseOk) {
                 statusDiv.innerText = result.message || 'Thanks, your message has been sent.';
                 statusDiv.classList.add('success');
                 contactForm.reset();
@@ -153,7 +173,12 @@ else if (isAuto) logoSrc = "/assets/branding/logo-auto.png";
                 throw new Error(result.error || 'Failed to send message.');
               }
             } catch (error) {
-              statusDiv.innerText = error.message;
+              console.error('Submission error:', error);
+              if (text && text.includes('<?php')) {
+                statusDiv.innerText = 'Local Dev Error: PHP scripts cannot be executed on the Astro dev server. Please test on your GoDaddy server.';
+              } else {
+                statusDiv.innerText = error.message;
+              }
               statusDiv.classList.add('error');
             } finally {
               submitBtn.textContent = 'Send Message';
