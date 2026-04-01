@@ -8,8 +8,13 @@ describe('Contact Modal Functionality & Integration', () => {
   let document;
 
   beforeAll(() => {
-    // Tests evaluate purely against the statistically generated HTML map of index.html
-    const htmlPath = path.resolve(process.cwd(), 'dist/index.html');
+    // Tests evaluate purely against the statically generated HTML map
+    let htmlPath = path.resolve(process.cwd(), 'dist/index.html');
+    if(!fs.existsSync(htmlPath)) {
+      // Check for adapter-specific output (e.g. Vercel/Node)
+      htmlPath = path.resolve(process.cwd(), 'dist/client/index.html');
+    }
+    
     if(!fs.existsSync(htmlPath)) {
       throw new Error(`File not found: ${htmlPath}. Ensure 'npm run build' is executed before tests.`);
     }
@@ -43,19 +48,19 @@ describe('Contact Modal Functionality & Integration', () => {
     expect(dialog.tagName.toLowerCase()).toBe('dialog');
   });
 
-  it('guarantees the strict inclusion of all modal form parameters targeting Keit\\\'s internal secure email workflow', () => {
+  it('guarantees the strict inclusion of all modal form parameters targeting server-side SMTP workflow', () => {
     const form = document.getElementById('contactForm');
     
     // Strict schema requirement validation
     expect(form).not.toBeNull();
-    expect(form.getAttribute('action')).toBe('mailto:keith@macdaly.com');
-    expect(form.getAttribute('method')).toBe('GET');
-    expect(form.getAttribute('enctype')).toBe('text/plain');
+    // Action is now handled via JS, ensuring no default mailto behavior
+    expect(form.getAttribute('action')).toBeNull();
     
     // Assert required children presence
     expect(form.querySelector('input[name="name"]')).not.toBeNull();
     expect(form.querySelector('input[name="email"]')).not.toBeNull();
-    expect(form.querySelector('textarea[name="body"]')).not.toBeNull();
+    expect(form.querySelector('input[name="honeypot"]')).not.toBeNull(); // Spam resilience
+    expect(form.querySelector('textarea[name="message"]')).not.toBeNull();
     expect(form.querySelector('button[type="submit"]')).not.toBeNull();
   });
 });

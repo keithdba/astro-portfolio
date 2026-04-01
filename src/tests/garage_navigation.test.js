@@ -7,13 +7,20 @@ describe('Garage Navigation & Content', () => {
   let dom;
   let document;
 
+  const getPageHtml = (relativePath) => {
+    const paths = [
+      path.resolve(process.cwd(), 'dist', relativePath),
+      path.resolve(process.cwd(), 'dist/client', relativePath)
+    ];
+    for (const p of paths) {
+      if (fs.existsSync(p)) return fs.readFileSync(p, 'utf-8');
+    }
+    throw new Error(`File not found: ${relativePath}. Checked: ${paths.join(', ')}`);
+  };
+
   beforeAll(() => {
     // Note: This test requires 'npm run build' to have been executed.
-    const htmlPath = path.resolve(process.cwd(), 'dist/auto/index.html');
-    if(!fs.existsSync(htmlPath)) {
-      throw new Error(`File not found: ${htmlPath}. Ensure 'npm run build' is executed before tests.`);
-    }
-    const html = fs.readFileSync(htmlPath, 'utf-8');
+    const html = getPageHtml('auto/index.html');
     dom = new JSDOM(html);
     document = dom.window.document;
   });
@@ -42,11 +49,7 @@ describe('Garage Navigation & Content', () => {
   });
 
   it('verifies the placeholder Product Reviews page exists and has the correct status', () => {
-    const productsHtmlPath = path.resolve(process.cwd(), 'dist/auto/products/index.html');
-    if(!fs.existsSync(productsHtmlPath)) {
-      throw new Error(`File not found: ${productsHtmlPath}.`);
-    }
-    const productsHtml = fs.readFileSync(productsHtmlPath, 'utf-8');
+    const productsHtml = getPageHtml('auto/products/index.html');
     const productsDom = new JSDOM(productsHtml);
     const productsDoc = productsDom.window.document;
     

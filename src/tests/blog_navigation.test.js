@@ -7,12 +7,19 @@ describe('Recent Blog Navigation', () => {
   let dom;
   let document;
 
-  beforeAll(() => {
-    const htmlPath = path.resolve(process.cwd(), 'dist/index.html');
-    if(!fs.existsSync(htmlPath)) {
-      throw new Error(`File not found: ${htmlPath}. Ensure 'npm run build' is executed before tests.`);
+  const getPageHtml = (relativePath) => {
+    const paths = [
+      path.resolve(process.cwd(), 'dist', relativePath),
+      path.resolve(process.cwd(), 'dist/client', relativePath)
+    ];
+    for (const p of paths) {
+      if (fs.existsSync(p)) return fs.readFileSync(p, 'utf-8');
     }
-    const html = fs.readFileSync(htmlPath, 'utf-8');
+    throw new Error(`File not found: ${relativePath}. Checked: ${paths.join(', ')}`);
+  };
+
+  beforeAll(() => {
+    const html = getPageHtml('index.html');
     dom = new JSDOM(html);
     document = dom.window.document;
   });
@@ -42,8 +49,7 @@ describe('Recent Blog Navigation', () => {
   });
 
   it('verifies the tab activation logic is present in the professional portfolio', () => {
-    const proHtmlPath = path.resolve(process.cwd(), 'dist/pro/index.html');
-    const proHtml = fs.readFileSync(proHtmlPath, 'utf-8');
+    const proHtml = getPageHtml('pro/index.html');
     
     // Check for core logic rather than specific function names due to minification
     expect(proHtml).toContain('hash');

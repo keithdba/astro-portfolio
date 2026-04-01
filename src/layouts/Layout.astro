@@ -61,7 +61,7 @@ else if (isAuto) logoSrc = "/assets/branding/logo-auto.png";
         <button class="close-modal" aria-label="Close Modal">&times;</button>
         <h3>Get In Touch</h3>
         <p>Send me an email directly. I'll get back to you as soon as possible.</p>
-        <form action="mailto:keith@macdaly.com" method="GET" enctype="text/plain" id="contactForm" class="contact-form">
+        <form id="contactForm" class="contact-form">
           <div class="form-group">
             <label for="name">Name</label>
             <input type="text" id="name" name="name" placeholder="Please share your name" required />
@@ -70,11 +70,16 @@ else if (isAuto) logoSrc = "/assets/branding/logo-auto.png";
             <label for="email">Email address</label>
             <input type="email" id="email" name="email" placeholder="john@example.com" required />
           </div>
-          <div class="form-group">
-            <label for="body">Message</label>
-            <textarea id="body" name="body" rows="4" placeholder="How can I help you?" required></textarea>
+          <div class="form-group" style="display:none;" aria-hidden="true">
+            <label for="honeypot">Leave this blank</label>
+            <input type="text" id="honeypot" name="honeypot" />
           </div>
-          <button type="submit" class="btn-hero-modal btn-dark-modal w-full mt-2">Send Message</button>
+          <div class="form-group">
+            <label for="message">Message</label>
+            <textarea id="message" name="message" rows="4" placeholder="How can I help you?" required></textarea>
+          </div>
+          <button type="submit" id="submitBtn" class="btn-hero-modal btn-dark-modal w-full">Send Message</button>
+          <div id="formStatus" class="form-status" role="alert"></div>
         </form>
       </div>
     </dialog>
@@ -84,6 +89,9 @@ else if (isAuto) logoSrc = "/assets/branding/logo-auto.png";
         const dialog = document.getElementById('contactModal');
         const btn = document.getElementById('contactModalBtn');
         const closeBtn = document.querySelector('.close-modal');
+        const contactForm = document.getElementById('contactForm');
+        const statusDiv = document.getElementById('formStatus');
+        const submitBtn = document.getElementById('submitBtn');
 
         if (btn && dialog && closeBtn) {
           btn.addEventListener('click', () => {
@@ -104,6 +112,54 @@ else if (isAuto) logoSrc = "/assets/branding/logo-auto.png";
             const dim = dialog.getBoundingClientRect();
             if (e.clientX < dim.left || e.clientX > dim.right || e.clientY < dim.top || e.clientY > dim.bottom) {
               dialog.close();
+            }
+          });
+        }
+
+        if (contactForm) {
+          contactForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // UI state management
+            submitBtn.textContent = 'Sending...';
+            submitBtn.disabled = true;
+            submitBtn.classList.add('btn-loading');
+            statusDiv.style.display = 'none';
+            statusDiv.className = 'form-status';
+
+            const formData = new FormData(contactForm);
+            const data = Object.fromEntries(formData.entries());
+
+            try {
+              const response = await fetch('/api/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+              });
+
+              const result = await response.json();
+
+              if (response.ok) {
+                statusDiv.innerText = result.message || 'Thanks, your message has been sent.';
+                statusDiv.classList.add('success');
+                contactForm.reset();
+                
+                // Close modal after delay
+                setTimeout(() => {
+                  dialog.close();
+                  statusDiv.style.display = 'none';
+                }, 3000);
+              } else {
+                throw new Error(result.error || 'Failed to send message.');
+              }
+            } catch (error) {
+              statusDiv.innerText = error.message;
+              statusDiv.classList.add('error');
+            } finally {
+              submitBtn.textContent = 'Send Message';
+              submitBtn.disabled = false;
+              submitBtn.classList.remove('btn-loading');
+              statusDiv.style.display = 'block';
             }
           });
         }
@@ -260,5 +316,34 @@ else if (isAuto) logoSrc = "/assets/branding/logo-auto.png";
     font-weight: 700;
     cursor: pointer;
     margin-top: 1rem;
+    transition: all 0.2s ease;
+  }
+  .btn-hero-modal:hover:not(:disabled) {
+    background: var(--accent-graphite);
+    transform: translateY(-2px);
+  }
+  .btn-loading {
+    opacity: 0.7;
+    cursor: wait !important;
+  }
+  .form-status {
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+    padding: 1rem;
+    border-radius: 8px;
+    display: none;
+    line-height: 1.4;
+  }
+  .form-status.success {
+    display: block;
+    background: #f0fff4;
+    color: #22543d;
+    border: 1px solid #c6f6d5;
+  }
+  .form-status.error {
+    display: block;
+    background: #fff5f5;
+    color: #822727;
+    border: 1px solid #fed7d7;
   }
 </style>
