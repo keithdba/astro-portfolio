@@ -130,6 +130,7 @@ else if (isAuto) logoSrc = "/assets/branding/logo-auto.png";
             const formData = new FormData(contactForm);
             const data = Object.fromEntries(formData.entries());
 
+            let text = '';
             try {
               let result;
               let responseOk = false;
@@ -149,7 +150,7 @@ else if (isAuto) logoSrc = "/assets/branding/logo-auto.png";
                 });
 
                 // Check for valid JSON response before parsing
-                const text = await response.text();
+                text = await response.text();
                 try {
                   result = JSON.parse(text);
                 } catch (e) {
