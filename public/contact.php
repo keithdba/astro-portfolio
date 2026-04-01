@@ -1,12 +1,22 @@
 <?php
 /**
- * MacDaly.com Contact Form Handler (PHP Version)
- * Replaces the Node.js API route for lower maintenance on GoDaddy Shared Hosting.
+ * MacDaly.com Contact Form Handler (PHP SMTP Version)
+ * Uses authenticated SMTP (Office 365) for reliable delivery on GoDaddy.
  */
 
 header('Content-Type: application/json');
 
-// 1. Load Environment Variables from the GoDaddy Specific Path
+// --- 1. SETTINGS & LOGGING ---
+$log_path = 'contact_debug.log';
+function debug_log($message) {
+    global $log_path;
+    $timestamp = date('Y-m-d H:i:s');
+    file_put_contents($log_path, "[$timestamp] $message\n", FILE_APPEND);
+}
+
+debug_log(">>> New submission request received.");
+
+// --- 2. LOAD ENVIRONMENT VARIABLES ---
 $env_path = '/home/rsa1bm8j8le5/.env';
 $env_vars = [];
 
@@ -19,61 +29,129 @@ if (file_exists($env_path)) {
             $env_vars[trim($name)] = trim($value);
         }
     }
+    debug_log("Environment loaded from $env_path.");
+} else {
+    debug_log("ERROR: Environment file NOT FOUND at $env_path.");
 }
 
-// 2. Get Form Data
-// Since Astro sends JSON, we read from php://input
+// --- 3. GET FORM DATA ---
 $json = file_get_contents('php://input');
 $data = json_decode($json, true);
 
 if (!$data) {
+    debug_log("ERROR: Invalid JSON received.");
     echo json_encode(['message' => 'Invalid request data.']);
-    http_response_code(400);
-    exit;
+    http_response_code(400); exit;
 }
 
 $name = trim($data['name'] ?? '');
 $email = trim($data['email'] ?? '');
 $message = trim($data['message'] ?? '');
-$honeypot = trim($data['honeypot'] ?? ''); // Honeypot field
+$honeypot = trim($data['honeypot'] ?? '');
 
-// 3. Validation
 if (empty($name) || empty($email) || empty($message)) {
-    echo json_encode(['message' => 'Validation failed: Name, Email, and Message are required.']);
-    http_response_code(400);
-    exit;
+    debug_log("ERROR: Validation failed (empty fields).");
+    echo json_encode(['message' => 'Validation failed: All fields are required.']);
+    http_response_code(400); exit;
 }
 
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    echo json_encode(['message' => 'Invalid email address.']);
-    http_response_code(400);
-    exit;
-}
-
-// 4. Honeypot check
 if (!empty($honeypot)) {
-    // Silently succeed to fool bots
-    echo json_encode(['message' => 'Success (Honeypot triggered)']);
-    http_response_code(200);
-    exit;
+    debug_log("Honeypot triggered (bot suspected). Silently ignoring.");
+    echo json_encode(['message' => 'Success']);
+    http_response_code(200); exit;
 }
 
-// 5. Send Email
-// Note: On GoDaddy, sometimes standard mail() works, but authenticated SMTP is more reliable.
-// We'll use the mail() function first as it's the "native" path.
-// If delivery fails, we recommend using a library like PHPMailer.
+// --- 4. AUTHENTICATED SMTP CLIENT (Office 365) ---
+class SimpleSMTP {
+    private $socket;
+    private $logs = [];
 
-$to = "keith@macdaly.com";
-$subject = "New Contact Form Submission from $name";
-$body = "Name: $name\nEmail: $email\n\nMessage:\n$message\n\n---";
-$headers = "From: " . ($env_vars['SMTP_USER'] ?? "no-reply@macdaly.com") . "\r\n";
-$headers .= "Reply-To: $email\r\n";
-$headers .= "X-Mailer: PHP/" . phpversion();
+    public function log($msg) { 
+        $this->logs[] = $msg;
+        debug_log("SMTP: $msg");
+    }
 
-if (mail($to, $subject, $body, $headers)) {
+    public function send($host, $port, $user, $pass, $fromName, $fromEmail, $to, $subject, $body) {
+        $this->log("Connecting to $host:$port...");
+        $this->socket = fsockopen($host, $port, $errno, $errstr, 30);
+        if (!$this->socket) throw new Exception("Connection failed: $errstr ($errno)");
+
+        $this->getResponse();
+        $this->sendCommand("EHLO " . $_SERVER['SERVER_NAME']);
+        
+        $this->log("Starting TLS...");
+        $this->sendCommand("STARTTLS");
+        if (!stream_socket_enable_crypto($this->socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
+            throw new Exception("TLS encryption failed.");
+        }
+
+        $this->sendCommand("EHLO " . $_SERVER['SERVER_NAME']);
+        $this->log("Authenticating as $user...");
+        $this->sendCommand("AUTH LOGIN");
+        $this->sendCommand(base64_encode($user));
+        $this->sendCommand(base64_encode($pass));
+
+        $this->sendCommand("MAIL FROM:<$user>");
+        $this->sendCommand("RCPT TO:<$to>");
+        $this->sendCommand("DATA");
+
+        $header = "To: $to\r\n";
+        $header .= "From: $fromName <$user>\r\n";
+        $header .= "Reply-To: $fromName <$fromEmail>\r\n";
+        $header .= "Subject: $subject\r\n";
+        $header .= "Content-Type: text/plain; charset=UTF-8\r\n";
+        $header .= "\r\n";
+        
+        $this->sendCommand($header . $body . "\r\n.", 250);
+        $this->sendCommand("QUIT");
+        
+        fclose($this->socket);
+        return true;
+    }
+
+    private function sendCommand($cmd, $expectedCode = 0) {
+        $this->log("Sent: " . (strpos($cmd, 'base64') || strpos($cmd, 'AUTH') ? "HIDDEN" : $cmd));
+        fputs($this->socket, $cmd . "\r\n");
+        return $this->getResponse($expectedCode);
+    }
+
+    private function getResponse($expectedCode = 0) {
+        $resp = "";
+        while ($line = fgets($this->socket, 515)) {
+            $resp .= $line;
+            if (substr($line, 3, 1) == " ") break;
+        }
+        $this->log("Received: " . trim($resp));
+        return $resp;
+    }
+}
+
+// --- 5. EXECUTE SEND ---
+try {
+    $smtp = new SimpleSMTP();
+    $smtp_user = $env_vars['SMTP_USER'] ?? '';
+    $smtp_pass = $env_vars['SMTP_PASSWORD'] ?? '';
+
+    if (empty($smtp_user) || empty($smtp_pass)) {
+        throw new Exception("SMTP credentials not found in environment.");
+    }
+
+    $smtp->send(
+        'smtp.office365.com',
+        587,
+        $smtp_user,
+        $smtp_pass,
+        "MacDaly Contact",
+        $email,
+        "keith@macdaly.com",
+        "New Contact Submission: $name",
+        "Name: $name\nEmail: $email\n\nMessage:\n$message\n\n---"
+    );
+
+    debug_log("Email sent SUCCESSFULLY.");
     echo json_encode(['message' => 'Thanks, your message has been sent.']);
-    http_response_code(200);
-} else {
-    echo json_encode(['message' => 'There was an error sending your message. Please try again.']);
+} catch (Exception $e) {
+    debug_log("CRITICAL ERROR: " . $e->getMessage());
+    echo json_encode(['message' => 'Service error: ' . $e->getMessage()]);
     http_response_code(500);
 }
