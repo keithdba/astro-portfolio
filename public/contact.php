@@ -150,8 +150,9 @@ try {
 
     debug_log("Email sent SUCCESSFULLY.");
     echo json_encode(['message' => 'Thanks, your message has been sent.']);
-} catch (Exception $e) {
-    debug_log("CRITICAL ERROR: " . $e->getMessage());
-    echo json_encode(['message' => 'Service error: ' . $e->getMessage()]);
+} catch (Throwable $t) {
+    debug_log("CRITICAL ERROR: " . $t->getMessage());
+    debug_log("Stack trace: " . $t->getTraceAsString());
+    echo json_encode(['message' => 'Service error: ' . $t->getMessage()]);
     http_response_code(500);
 }

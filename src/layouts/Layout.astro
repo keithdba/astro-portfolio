@@ -175,10 +175,11 @@ else if (isAuto) logoSrc = "/assets/branding/logo-auto.png";
               }
             } catch (error) {
               console.error('Submission error:', error);
+              const displayMsg = (result && result.message) ? result.message : error.message;
               if (text && text.includes('<?php')) {
                 statusDiv.innerText = 'Local Dev Error: PHP scripts cannot be executed on the Astro dev server. Please test on your GoDaddy server.';
               } else {
-                statusDiv.innerText = error.message;
+                statusDiv.innerText = displayMsg;
               }
               statusDiv.classList.add('error');
             } finally {
