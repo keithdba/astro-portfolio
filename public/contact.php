@@ -1,65 +1,43 @@
 <?php
 /**
- * MacDaly.com Contact Form Handler (PHP SMTP Version)
- * Uses authenticated SMTP (Office 365) for reliable delivery on GoDaddy.
+ * MacDaly.com Contact Form Handler (Final GoDaddy Relay Version)
+ * Uses GoDaddy's internal mail relay to bypass outbound port 587 blocks.
  */
 
 header('Content-Type: application/json');
 
 // --- 1. SETTINGS & LOGGING ---
-$log_buffer = [];
+$log_path = __DIR__ . '/contact_debug.log';
 function debug_log($message) {
-    global $log_buffer;
-    $timestamp = date('H:i:s');
-    $log_buffer[] = "[$timestamp] $message";
-    
-    // Also try writing to file as a secondary measure
-    $log_path = __DIR__ . '/contact_debug.log';
-    @file_put_contents($log_path, "[" . date('Y-m-d H:i:s') . "] $message\n", FILE_APPEND);
+    global $log_path;
+    $timestamp = date('Y-m-d H:i:s');
+    @file_put_contents($log_path, "[$timestamp] $message\n", FILE_APPEND);
 }
 
 debug_log(">>> New submission request received.");
 
 // --- 2. LOAD ENVIRONMENT VARIABLES ---
-// Automatically resolve the path relative to the website's root
 $doc_root = $_SERVER['DOCUMENT_ROOT'] ?? getcwd();
-$env_path = dirname($doc_root) . '/.env';
-$env_vars = [];
-
-// Fallback search
 $potential_paths = [
-    $env_path,                             // /home/rsa1bm8j8le5/.env
-    dirname($doc_root) . '/macdaly.env',    // /home/rsa1bm8j8le5/macdaly.env (Proposed Rename)
-    '/home/rsa1bm8j8le5/macdaly.env',      // Hardcoded fallback
-    __DIR__ . '/macdaly.env'               // Public root (fallback)
+    dirname($doc_root) . '/macdaly.env',
+    '/home/rsa1bm8j8le5/macdaly.env',
+    __DIR__ . '/macdaly.env'
 ];
 
-// Diagnostics
-debug_log("DIAG: user='" . get_current_user() . "'");
-debug_log("DIAG: doc_root='$doc_root'");
-
-$found_path = null;
+$env_vars = [];
 foreach ($potential_paths as $path) {
-    debug_log("DIAG: Checking " . basename($path) . " at $path...");
     if (file_exists($path) && is_readable($path)) {
-        $found_path = $path;
+        $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if (empty($line) || strpos($line, '#') === 0) continue;
+            if (strpos($line, '=') !== false) {
+                list($name, $value) = explode('=', $line, 2);
+                $env_vars[trim($name)] = trim($value, " \t\n\r\0\x0B\"'");
+            }
+        }
         break;
     }
-}
-
-if ($found_path) {
-    $lines = file($found_path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    foreach ($lines as $line) {
-        $line = trim($line);
-        if (empty($line) || strpos($line, '#') === 0) continue;
-        if (strpos($line, '=') !== false) {
-            list($name, $value) = explode('=', $line, 2);
-            $env_vars[trim($name)] = trim($value, " \t\n\r\0\x0B\"'");
-        }
-    }
-    debug_log("Env loaded: " . count($env_vars) . " entries from $found_path.");
-} else {
-    debug_log("CRIT: .env NOT FOUND or NOT READABLE in any location.");
 }
 
 // --- 3. GET FORM DATA ---
@@ -78,111 +56,79 @@ $message = trim($data['message'] ?? '');
 $honeypot = trim($data['honeypot'] ?? '');
 
 if (empty($name) || empty($email) || empty($message)) {
-    debug_log("ERROR: Validation failed (empty fields).");
+    debug_log("ERROR: Validation failed.");
     echo json_encode(['message' => 'Validation failed: All fields are required.']);
     http_response_code(400); exit;
 }
 
 if (!empty($honeypot)) {
-    debug_log("Honeypot triggered (bot suspected). Silently ignoring.");
+    debug_log("Honeypot triggered.");
     echo json_encode(['message' => 'Success']);
     http_response_code(200); exit;
 }
 
-// --- 4. AUTHENTICATED SMTP CLIENT (Office 365) ---
-class SimpleSMTP {
+// --- 4. RELAY SMTP CLIENT (GoDaddy Internal) ---
+class RelaySMTP {
     private $socket;
-    private $logs = [];
 
-    public function log($msg) { 
-        $this->logs[] = $msg;
-        debug_log("SMTP: $msg");
-    }
-
-    public function send($host, $port, $user, $pass, $fromName, $fromEmail, $to, $subject, $body) {
-        $this->log("Connecting to $host:$port...");
-        $this->socket = fsockopen($host, $port, $errno, $errstr, 30);
-        if (!$this->socket) throw new Exception("Connection failed: $errstr ($errno)");
+    public function send($to, $fromName, $fromEmail, $subject, $body) {
+        // GoDaddy relay settings (localhost:25, no auth)
+        $this->socket = fsockopen('localhost', 25, $errno, $errstr, 10);
+        if (!$this->socket) throw new Exception("Relay failed: $errstr ($errno)");
 
         $this->getResponse();
-        $this->sendCommand("EHLO " . $_SERVER['SERVER_NAME']);
-        
-        $this->log("Starting TLS...");
-        $this->sendCommand("STARTTLS");
-        if (!stream_socket_enable_crypto($this->socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
-            throw new Exception("TLS encryption failed.");
-        }
+        fputs($this->socket, "HELO " . $_SERVER['SERVER_NAME'] . "\r\n");
+        $this->getResponse();
 
-        $this->sendCommand("EHLO " . $_SERVER['SERVER_NAME']);
-        $this->log("Authenticating as $user...");
-        $this->sendCommand("AUTH LOGIN");
-        $this->sendCommand(base64_encode($user));
-        $this->sendCommand(base64_encode($pass));
+        fputs($this->socket, "MAIL FROM:<$fromEmail>\r\n");
+        $this->getResponse();
 
-        $this->sendCommand("MAIL FROM:<$user>");
-        $this->sendCommand("RCPT TO:<$to>");
-        $this->sendCommand("DATA");
+        fputs($this->socket, "RCPT TO:<$to>\r\n");
+        $this->getResponse();
+
+        fputs($this->socket, "DATA\r\n");
+        $this->getResponse();
 
         $header = "To: $to\r\n";
-        $header .= "From: $fromName <$user>\r\n";
+        $header .= "From: $fromName <$fromEmail>\r\n";
         $header .= "Reply-To: $fromName <$fromEmail>\r\n";
         $header .= "Subject: $subject\r\n";
         $header .= "Content-Type: text/plain; charset=UTF-8\r\n";
         $header .= "\r\n";
         
-        $this->sendCommand($header . $body . "\r\n.", 250);
-        $this->sendCommand("QUIT");
-        
+        fputs($this->socket, $header . $body . "\r\n.\r\n");
+        $this->getResponse();
+
+        fputs($this->socket, "QUIT\r\n");
         fclose($this->socket);
         return true;
     }
 
-    private function sendCommand($cmd, $expectedCode = 0) {
-        $this->log("Sent: " . (strpos($cmd, 'base64') || strpos($cmd, 'AUTH') ? "HIDDEN" : $cmd));
-        fputs($this->socket, $cmd . "\r\n");
-        return $this->getResponse($expectedCode);
-    }
-
-    private function getResponse($expectedCode = 0) {
+    private function getResponse() {
         $resp = "";
         while ($line = fgets($this->socket, 515)) {
             $resp .= $line;
             if (substr($line, 3, 1) == " ") break;
         }
-        $this->log("Received: " . trim($resp));
         return $resp;
     }
 }
 
-// --- 5. EXECUTE SEND ---
+// --- 5. EXECUTE ---
 try {
-    $smtp = new SimpleSMTP();
-    $smtp_user = $env_vars['SMTP_USER'] ?? '';
-    $smtp_pass = $env_vars['SMTP_PASSWORD'] ?? '';
-
-    if (empty($smtp_user) || empty($smtp_pass)) {
-        throw new Exception("SMTP credentials not found in environment.");
-    }
-
+    $smtp = new RelaySMTP();
     $smtp->send(
-        'smtp.office365.com',
-        587,
-        $smtp_user,
-        $smtp_pass,
+        "keith@macdaly.com",
         "MacDaly Contact",
         $email,
-        "keith@macdaly.com",
         "New Contact Submission: $name",
         "Name: $name\nEmail: $email\n\nMessage:\n$message\n\n---"
     );
 
-    debug_log("Email sent SUCCESSFULLY.");
+    debug_log("Email sent SUCCESS via Relay.");
     echo json_encode(['message' => 'Thanks, your message has been sent.']);
 } catch (Throwable $t) {
-    global $log_buffer;
     debug_log("CRITICAL ERROR: " . $t->getMessage());
-    echo json_encode([
-        'message' => 'Service error: ' . $t->getMessage() . ' | LOG: ' . implode(' -> ', $log_buffer)
-    ]);
+    echo json_encode(['message' => 'Service error: ' . $t->getMessage()]);
     http_response_code(500);
 }
