@@ -20,6 +20,14 @@ debug_log(">>> New submission request received.");
 $env_path = '/home/rsa1bm8j8le5/.env';
 $env_vars = [];
 
+// Deep Diagnostics
+debug_log("DIAGNOSTICS: Script running as user '" . get_current_user() . "'");
+debug_log("DIAGNOSTICS: Current directory is '" . getcwd() . "'");
+debug_log("DIAGNOSTICS: open_basedir is '" . ini_get('open_basedir') . "'");
+debug_log("DIAGNOSTICS: Assessing $env_path...");
+debug_log("DIAGNOSTICS: file_exists? " . (file_exists($env_path) ? 'YES' : 'NO'));
+debug_log("DIAGNOSTICS: is_readable? " . (is_readable($env_path) ? 'YES' : 'NO'));
+
 if (file_exists($env_path) && is_readable($env_path)) {
     $lines = file($env_path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     foreach ($lines as $line) {
@@ -30,9 +38,9 @@ if (file_exists($env_path) && is_readable($env_path)) {
             $env_vars[trim($name)] = trim($value, " \t\n\r\0\x0B\"'");
         }
     }
-    debug_log("Environment loaded from: $env_path");
+    debug_log("Environment loaded successfully. Found " . count($env_vars) . " variables.");
 } else {
-    debug_log("ERROR: .env file NOT FOUND or NOT READABLE at $env_path.");
+    debug_log("CRITICAL ERROR: .env file NOT READABLE at $env_path.");
 }
 
 // --- 3. GET FORM DATA ---
