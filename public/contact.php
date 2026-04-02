@@ -1,20 +1,17 @@
 <?php
 /**
- * MacDaly.com Contact Form Handler (Direct O365 Version via Port 465)
- * Uses SSL-secured SMTP to restore Microsoft "Sent Items" visibility.
+ * MacDaly.com Contact Form Handler (Universal GoDaddy Relay Version)
+ * Uses Port 25 internal relay and BCC for lead tracking.
  */
 
 header('Content-Type: application/json');
 
 // --- 1. SETTINGS & LOGGING ---
-$log_buffer = [];
+$log_path = __DIR__ . '/contact_debug.log';
 function debug_log($message) {
-    global $log_buffer;
+    global $log_path;
     $timestamp = date('H:i:s');
-    $log_buffer[] = "[$timestamp] $message";
-    
-    $log_path = __DIR__ . '/contact_debug.log';
-    @file_put_contents($log_path, "[" . date('Y-m-d H:i:s') . "] $message\n", FILE_APPEND);
+    @file_put_contents($log_path, "[$timestamp] $message\n", FILE_APPEND);
 }
 
 debug_log(">>> New submission request received.");
@@ -34,9 +31,6 @@ if (file_exists($path) && is_readable($path)) {
             $env_vars[trim($name)] = trim($value, " \t\n\r\0\x0B\"'");
         }
     }
-    debug_log("Env loaded: " . count($env_vars) . " entries.");
-} else {
-    debug_log("CRIT: macdaly.env NOT FOUND at $path.");
 }
 
 // --- 3. GET FORM DATA ---
@@ -63,90 +57,69 @@ if (!empty($honeypot)) {
     http_response_code(200); exit;
 }
 
-// --- 4. AUTHENTICATED SMTP CLIENT (Direct Microsoft via SSL Port 465) ---
-class DirectSMTP {
+// --- 4. RELAY SMTP CLIENT (GoDaddy Internal) ---
+class RelaySMTP {
     private $socket;
-    
-    private function log($msg) { debug_log("SMTP: $msg"); }
 
-    public function send($host, $port, $user, $pass, $fromName, $fromEmail, $to, $subject, $body) {
-        $this->log("Connecting to $host:$port via SSL...");
-        // Port 465 uses SSL directly (ssl:// required)
-        $this->socket = fsockopen("ssl://$host", $port, $errno, $errstr, 20);
-        if (!$this->socket) throw new Exception("Connection failed: $errstr ($errno)");
+    public function send($to, $fromName, $fromEmail, $subject, $body) {
+        // GoDaddy relay settings (localhost:25, no auth)
+        $this->socket = fsockopen('localhost', 25, $errno, $errstr, 10);
+        if (!$this->socket) throw new Exception("Relay failed: $errstr ($errno)");
 
         $this->getResponse();
-        $this->sendCommand("EHLO " . $_SERVER['SERVER_NAME']);
-        
-        $this->log("Authenticating as $user...");
-        $this->sendCommand("AUTH LOGIN");
-        $this->sendCommand(base64_encode($user));
-        $this->sendCommand(base64_encode($pass));
+        fputs($this->socket, "HELO " . $_SERVER['SERVER_NAME'] . "\r\n");
+        $this->getResponse();
 
-        $this->sendCommand("MAIL FROM:<$user>");
-        $this->sendCommand("RCPT TO:<$to>");
-        $this->sendCommand("DATA");
+        fputs($this->socket, "MAIL FROM:<$fromEmail>\r\n");
+        $this->getResponse();
+
+        fputs($this->socket, "RCPT TO:<$to>\r\n");
+        $this->getResponse();
+
+        fputs($this->socket, "DATA\r\n");
+        $this->getResponse();
 
         $header = "To: $to\r\n";
-        $header .= "From: $fromName <$user>\r\n";
+        $header .= "From: $fromName <$fromEmail>\r\n";
+        $header .= "Bcc: keith@macdaly.com\r\n"; // Added BCC for tracking since it won't show in O365 Sent Items
         $header .= "Reply-To: $fromName <$fromEmail>\r\n";
         $header .= "Subject: $subject\r\n";
         $header .= "Content-Type: text/plain; charset=UTF-8\r\n";
         $header .= "\r\n";
         
-        $this->sendCommand($header . $body . "\r\n.", 250);
-        $this->sendCommand("QUIT");
-        
+        fputs($this->socket, $header . $body . "\r\n.\r\n");
+        $this->getResponse();
+
+        fputs($this->socket, "QUIT\r\n");
         fclose($this->socket);
         return true;
     }
 
-    private function sendCommand($cmd, $expectedCode = 0) {
-        $this->log("Sent: " . (strpos($cmd, 'base64') || strpos($cmd, 'AUTH') ? "HIDDEN" : $cmd));
-        fputs($this->socket, $cmd . "\r\n");
-        return $this->getResponse($expectedCode);
-    }
-
-    private function getResponse($expectedCode = 0) {
+    private function getResponse() {
         $resp = "";
         while ($line = fgets($this->socket, 515)) {
             $resp .= $line;
             if (substr($line, 3, 1) == " ") break;
         }
-        $this->log("Received: " . trim($resp));
         return $resp;
     }
 }
 
 // --- 5. EXECUTE ---
 try {
-    $smtp_user = $env_vars['SMTP_USER'] ?? '';
-    $smtp_pass = $env_vars['SMTP_PASSWORD'] ?? '';
-
-    if (empty($smtp_user) || empty($smtp_pass)) {
-        throw new Exception("SMTP credentials not found in env.");
-    }
-
-    $smtp = new DirectSMTP();
+    $smtp = new RelaySMTP();
     $smtp->send(
-        'smtp.office365.com',
-        465,
-        $smtp_user,
-        $smtp_pass,
+        "keith@macdaly.com",
         "MacDaly Contact",
         $email,
-        "keith@macdaly.com",
         "New Contact Submission: $name",
         "Name: $name\nEmail: $email\n\nMessage:\n$message\n\n---"
     );
 
-    debug_log("Email sent SUCCESS via Direct SMTP.");
+    debug_log("Email sent SUCCESS via Relay with BCC.");
     echo json_encode(['message' => 'Thanks, your message has been sent.']);
 } catch (Throwable $t) {
-    global $log_buffer;
     debug_log("CRITICAL ERROR: " . $t->getMessage());
-    echo json_encode([
-        'message' => 'Service error: ' . $t->getMessage() . ' | LOG: ' . implode(' -> ', $log_buffer)
-    ]);
+    echo json_encode(['message' => 'Service error: ' . $t->getMessage()]);
     http_response_code(500);
 }
