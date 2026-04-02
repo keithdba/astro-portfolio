@@ -21,18 +21,33 @@ function debug_log($message) {
 debug_log(">>> New submission request received.");
 
 // --- 2. LOAD ENVIRONMENT VARIABLES ---
-$env_path = '/home/rsa1bm8j8le5/.env';
+// Automatically resolve the path relative to the website's root
+$doc_root = $_SERVER['DOCUMENT_ROOT'] ?? getcwd();
+$env_path = dirname($doc_root) . '/.env';
 $env_vars = [];
 
-// Deep Diagnostics
-debug_log("DIAG: user='" . get_current_user() . "'");
-debug_log("DIAG: dir='" . getcwd() . "'");
-debug_log("DIAG: open_basedir='" . ini_get('open_basedir') . "'");
-debug_log("DIAG: is_file(" . basename($env_path) . ")? " . (file_exists($env_path) ? 'YES' : 'NO'));
-debug_log("DIAG: is_readable(" . basename($env_path) . ")? " . (is_readable($env_path) ? 'YES' : 'NO'));
+// Fallback search
+$potential_paths = [
+    $env_path,
+    '/home/rsa1bm8j8le5/.env',             // Absolute path from previous Node setup
+    __DIR__ . '/.env'                       // Public root (fallback)
+];
 
-if (file_exists($env_path) && is_readable($env_path)) {
-    $lines = file($env_path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+// Diagnostics
+debug_log("DIAG: user='" . get_current_user() . "'");
+debug_log("DIAG: doc_root='$doc_root'");
+
+$found_path = null;
+foreach ($potential_paths as $path) {
+    debug_log("DIAG: Checking " . basename($path) . " at $path...");
+    if (file_exists($path) && is_readable($path)) {
+        $found_path = $path;
+        break;
+    }
+}
+
+if ($found_path) {
+    $lines = file($found_path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     foreach ($lines as $line) {
         $line = trim($line);
         if (empty($line) || strpos($line, '#') === 0) continue;
@@ -41,9 +56,9 @@ if (file_exists($env_path) && is_readable($env_path)) {
             $env_vars[trim($name)] = trim($value, " \t\n\r\0\x0B\"'");
         }
     }
-    debug_log("Env loaded: " . count($env_vars) . " entries.");
+    debug_log("Env loaded: " . count($env_vars) . " entries from $found_path.");
 } else {
-    debug_log("CRIT: .env NOT READABLE at $env_path.");
+    debug_log("CRIT: .env NOT FOUND or NOT READABLE in any location.");
 }
 
 // --- 3. GET FORM DATA ---
