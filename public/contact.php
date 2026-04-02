@@ -28,9 +28,10 @@ $env_vars = [];
 
 // Fallback search
 $potential_paths = [
-    $env_path,
-    '/home/rsa1bm8j8le5/.env',             // Absolute path from previous Node setup
-    __DIR__ . '/.env'                       // Public root (fallback)
+    $env_path,                             // /home/rsa1bm8j8le5/.env
+    dirname($doc_root) . '/macdaly.env',    // /home/rsa1bm8j8le5/macdaly.env (Proposed Rename)
+    '/home/rsa1bm8j8le5/macdaly.env',      // Hardcoded fallback
+    __DIR__ . '/macdaly.env'               // Public root (fallback)
 ];
 
 // Diagnostics

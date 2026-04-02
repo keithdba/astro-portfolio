@@ -1,5 +1,5 @@
-# Deny access to .env files
-<FilesMatch "^\.env$">
+# Deny access to .env and macdaly.env files
+<FilesMatch "^\.env|macdaly\.env$">
     Order allow,deny
     Deny from all
 </FilesMatch>
