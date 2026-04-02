@@ -7,11 +7,15 @@
 header('Content-Type: application/json');
 
 // --- 1. SETTINGS & LOGGING ---
-$log_path = 'contact_debug.log';
+$log_buffer = [];
 function debug_log($message) {
-    global $log_path;
-    $timestamp = date('Y-m-d H:i:s');
-    file_put_contents($log_path, "[$timestamp] $message\n", FILE_APPEND);
+    global $log_buffer;
+    $timestamp = date('H:i:s');
+    $log_buffer[] = "[$timestamp] $message";
+    
+    // Also try writing to file as a secondary measure
+    $log_path = __DIR__ . '/contact_debug.log';
+    @file_put_contents($log_path, "[" . date('Y-m-d H:i:s') . "] $message\n", FILE_APPEND);
 }
 
 debug_log(">>> New submission request received.");
@@ -21,12 +25,11 @@ $env_path = '/home/rsa1bm8j8le5/.env';
 $env_vars = [];
 
 // Deep Diagnostics
-debug_log("DIAGNOSTICS: Script running as user '" . get_current_user() . "'");
-debug_log("DIAGNOSTICS: Current directory is '" . getcwd() . "'");
-debug_log("DIAGNOSTICS: open_basedir is '" . ini_get('open_basedir') . "'");
-debug_log("DIAGNOSTICS: Assessing $env_path...");
-debug_log("DIAGNOSTICS: file_exists? " . (file_exists($env_path) ? 'YES' : 'NO'));
-debug_log("DIAGNOSTICS: is_readable? " . (is_readable($env_path) ? 'YES' : 'NO'));
+debug_log("DIAG: user='" . get_current_user() . "'");
+debug_log("DIAG: dir='" . getcwd() . "'");
+debug_log("DIAG: open_basedir='" . ini_get('open_basedir') . "'");
+debug_log("DIAG: is_file(" . basename($env_path) . ")? " . (file_exists($env_path) ? 'YES' : 'NO'));
+debug_log("DIAG: is_readable(" . basename($env_path) . ")? " . (is_readable($env_path) ? 'YES' : 'NO'));
 
 if (file_exists($env_path) && is_readable($env_path)) {
     $lines = file($env_path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
@@ -38,9 +41,9 @@ if (file_exists($env_path) && is_readable($env_path)) {
             $env_vars[trim($name)] = trim($value, " \t\n\r\0\x0B\"'");
         }
     }
-    debug_log("Environment loaded successfully. Found " . count($env_vars) . " variables.");
+    debug_log("Env loaded: " . count($env_vars) . " entries.");
 } else {
-    debug_log("CRITICAL ERROR: .env file NOT READABLE at $env_path.");
+    debug_log("CRIT: .env NOT READABLE at $env_path.");
 }
 
 // --- 3. GET FORM DATA ---
@@ -160,8 +163,10 @@ try {
     debug_log("Email sent SUCCESSFULLY.");
     echo json_encode(['message' => 'Thanks, your message has been sent.']);
 } catch (Throwable $t) {
+    global $log_buffer;
     debug_log("CRITICAL ERROR: " . $t->getMessage());
-    debug_log("Stack trace: " . $t->getTraceAsString());
-    echo json_encode(['message' => 'Service error: ' . $t->getMessage()]);
+    echo json_encode([
+        'message' => 'Service error: ' . $t->getMessage() . ' | LOG: ' . implode(' -> ', $log_buffer)
+    ]);
     http_response_code(500);
 }
