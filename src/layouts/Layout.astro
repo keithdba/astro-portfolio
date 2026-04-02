@@ -131,10 +131,10 @@ else if (isAuto) logoSrc = "/assets/branding/logo-auto.png";
             const data = Object.fromEntries(formData.entries());
 
             let text = '';
-            try {
-              let result;
-              let responseOk = false;
+            let result;
+            let responseOk = false;
 
+            try {
               // Local Mocking for Dev Server
               if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
                 console.log('--- LOCAL DEV MOCK ---');
