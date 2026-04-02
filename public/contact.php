@@ -17,21 +17,38 @@ function debug_log($message) {
 debug_log(">>> New submission request received.");
 
 // --- 2. LOAD ENVIRONMENT VARIABLES ---
-$env_path = '/home/rsa1bm8j8le5/.env';
-$env_vars = [];
+$potential_paths = [
+    '/home/rsa1bm8j8le5/.env',             // Absolute path from previous Node setup
+    dirname(__DIR__, 1) . '/.env',          // Parent of public_html
+    __DIR__ . '/.env'                       // Public root (fallback)
+];
 
-if (file_exists($env_path)) {
-    $lines = file($env_path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    foreach ($lines as $line) {
-        if (strpos(trim($line), '#') === 0) continue;
-        if (strpos($line, '=') !== false) {
-            list($name, $value) = explode('=', $line, 2);
-            $env_vars[trim($name)] = trim($value);
+$env_vars = [];
+$found_path = null;
+
+foreach ($potential_paths as $path) {
+    if (file_exists($path) && is_readable($path)) {
+        $found_path = $path;
+        $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if (empty($line) || strpos($line, '#') === 0) continue;
+            if (strpos($line, '=') !== false) {
+                list($name, $value) = explode('=', $line, 2);
+                // Remove potential quotes and whitespace
+                $env_vars[trim($name)] = trim($value, " \t\n\r\0\x0B\"'");
+            }
         }
+        break;
     }
-    debug_log("Environment loaded from $env_path.");
+}
+
+if ($found_path) {
+    debug_log("Environment loaded successfully from: $found_path");
 } else {
-    debug_log("ERROR: Environment file NOT FOUND at $env_path.");
+    $err_msg = "ERROR: .env file not found or not readable. tried: " . implode(', ', $potential_paths);
+    debug_log($err_msg);
+    // We don't exit here, we'll let the credential check handle the failure response
 }
 
 // --- 3. GET FORM DATA ---
