@@ -18,9 +18,9 @@ debug_log(">>> New submission request received.");
 
 // --- 2. LOAD ENVIRONMENT VARIABLES ---
 $potential_paths = [
-    '/home/rsa1bm8j8le5/.env',             // Absolute path from previous Node setup
-    dirname(__DIR__, 1) . '/.env',          // Parent of public_html
-    __DIR__ . '/.env'                       // Public root (fallback)
+    __DIR__ . '/private.env',               // New secure location in public root
+    '/home/rsa1bm8j8le5/.env',             // Original absolute path
+    dirname(__DIR__, 1) . '/.env'           // Parent folder
 ];
 
 $env_vars = [];
