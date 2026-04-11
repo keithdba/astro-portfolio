@@ -13,12 +13,11 @@ const SESSION_COOKIE_NAME = 'macdaly_session';
 export const sessionMiddleware = defineMiddleware(async (context, next) => {
   const { cookies, locals, url } = context;
   
-  // Process sessions for admin routes, API routes, and the home page
+  // Only process sessions for admin routes or API routes
   const isAdminPath = url.pathname.startsWith('/admin');
   const isApiPath = url.pathname.startsWith('/api/messages') || url.pathname.startsWith('/api/auth/rotate-password');
-  const isHomePath = url.pathname === '/';
   
-  if (!isAdminPath && !isApiPath && !isHomePath) {
+  if (!isAdminPath && !isApiPath) {
     return next();
   }
 
