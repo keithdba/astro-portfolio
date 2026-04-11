@@ -1,0 +1,393 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ThemeToggle from '../../components/admin/ThemeToggle.astro';
+import { requireAdmin } from '../../lib/auth/auth.controller';
+import { getErrorLogs } from '../../lib/logging/logs.service';
+import '../../styles/admin.css';
+
+export const prerender = false;
+
+// Check auth server-side
+const { session, error } = requireAdmin(Astro.locals);
+
+if (error || !session) {
+  return Astro.redirect('/admin/login');
+}
+
+// Initial fetch for first page
+const { logs, total } = await getErrorLogs({ limit: 50, offset: 0 });
+---
+
+<Layout 
+  title="System Error Logs | Admin Dashboard" 
+  description="Security and system error tracking."
+  fluid={true}
+  hideHeader={true}
+  hideFooter={true}
+>
+  <div class="admin-layout">
+    <header class="admin-header">
+      <div class="logo">MacDaly<span>.Admin</span></div>
+      
+      <div class="header-actions">
+        <a href="/admin/dashboard" class="btn-link">← Inbox</a>
+        <a href="/admin/logs" class="btn-link">Audit Logs</a>
+        <a href="/api/admin/error-logs/export" class="btn-link" download>Export JSON</a>
+        <ThemeToggle />
+        <button id="logoutBtn" class="btn-outline">Logout</button>
+      </div>
+    </header>
+
+    <main class="admin-content">
+      <div class="dashboard-intro">
+        <h1>System Error Logs</h1>
+        <p class="subtitle">Monitor and debug system-level failures securely.</p>
+      </div>
+
+      <div class="dashboard-main mt-8">
+        <!-- Filter Toolbar -->
+        <div class="filter-toolbar glass-panel mb-4">
+          <div class="filter-row">
+            <div class="filter-item">
+              <label>Error Type</label>
+              <input type="text" id="filterError" placeholder="e.g. ReferenceError" class="admin-input" />
+            </div>
+            <div class="filter-item">
+              <label>Request Path</label>
+              <input type="text" id="filterPath" placeholder="/api/..." class="admin-input" />
+            </div>
+            <div class="filter-item">
+              <label>Date From</label>
+              <input type="date" id="filterDateFrom" class="admin-input" />
+            </div>
+            <div class="filter-item">
+              <label>Date To</label>
+              <input type="date" id="filterDateTo" class="admin-input" />
+            </div>
+            <div class="filter-actions">
+              <button id="applyFilters" class="btn-primary-sm">Apply Filters</button>
+              <button id="clearFilters" class="btn-outline-sm">Clear</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Table -->
+        <div class="glass-panel no-padding overflow-hidden">
+          <div class="table-container">
+            <table class="logs-table">
+              <thead>
+                <tr>
+                  <th>Correlation ID</th>
+                  <th>Timestamp</th>
+                  <th>Method / Path</th>
+                  <th>Error Message</th>
+                  <th class="text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody id="logsBody">
+                {logs.length === 0 ? (
+                  <tr>
+                    <td colspan="5" class="empty-state">No system logs found.</td>
+                  </tr>
+                ) : (
+                  logs.map((log) => (
+                    <tr class="log-row" data-id={log.id}>
+                      <td class="corr-id"><code>{log.correlationId}</code></td>
+                      <td class="timestamp">{new Date(log.timestamp).toLocaleString()}</td>
+                      <td>
+                        <span class="method-tag">{log.method}</span>
+                        <span class="path-text">{log.path}</span>
+                      </td>
+                      <td class="msg-cell">{log.message.substring(0, 60)}{log.message.length > 60 ? '...' : ''}</td>
+                      <td class="text-right">
+                        <button class="view-log-btn btn-sm" data-id={log.id}>View Details</button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-footer mt-4">
+          <div id="paginationInfo">Showing {logs.length} of {total} errors</div>
+          <div class="pagination-controls">
+            <button id="prevPage" class="page-btn" disabled>←</button>
+            <button id="nextPage" class="page-btn" disabled={logs.length >= total}>→</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Detail Modal -->
+  <div id="logModal" class="modal-overlay hidden">
+    <div class="modal-container">
+      <div class="modal-content glass-panel">
+        <header class="modal-header">
+          <div>
+            <h2 id="modalCorrId">ERR-XXXX</h2>
+            <p id="modalTimestamp" class="text-muted">Loading...</p>
+          </div>
+          <button id="closeModal" class="btn-close-circle">&times;</button>
+        </header>
+        <div class="modal-body">
+          <div class="detail-section">
+            <h3>Error Message</h3>
+            <div id="modalMessage" class="error-msg-box"></div>
+          </div>
+          <div class="detail-grid mt-4">
+            <div class="detail-item">
+              <label>Request Path</label>
+              <div id="modalPath"></div>
+            </div>
+            <div class="detail-item">
+              <label>Method</label>
+              <div id="modalMethod"></div>
+            </div>
+            <div class="detail-item">
+              <label>User Agent</label>
+              <div id="modalUA"></div>
+            </div>
+          </div>
+          <div class="detail-section mt-4">
+            <h3>Stack Trace</h3>
+            <pre id="modalStack" class="stack-box"></pre>
+          </div>
+          <div class="detail-section mt-4">
+            <h3>Request Metadata (Redacted)</h3>
+            <pre id="modalMetadata" class="meta-box"></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  let currentPage = 0;
+  const limit = 50;
+
+  const logsBody = document.getElementById('logsBody');
+  const logModal = document.getElementById('logModal');
+  const closeModal = document.getElementById('closeModal');
+  
+  async function fetchLogs() {
+    const errorType = (document.getElementById('filterError') as HTMLInputElement).value;
+    const path = (document.getElementById('filterPath') as HTMLInputElement).value;
+    const dateFrom = (document.getElementById('filterDateFrom') as HTMLInputElement).value;
+    const dateTo = (document.getElementById('filterDateTo') as HTMLInputElement).value;
+    
+    const params = new URLSearchParams({
+      limit: limit.toString(),
+      offset: (currentPage * limit).toString(),
+      ...(errorType && { errorType }),
+      ...(path && { path }),
+      ...(dateFrom && { dateFrom }),
+      ...(dateTo && { dateTo }),
+    });
+
+    try {
+      const res = await fetch(`/api/admin/error-logs?${params}`);
+      const data = await res.json();
+      renderLogs(data.logs);
+      updatePagination(data.total);
+    } catch (err) {
+      console.error('Failed to fetch logs', err);
+    }
+  }
+
+  function renderLogs(logs: any[]) {
+    if (!logsBody) return;
+    if (logs.length === 0) {
+      logsBody.innerHTML = '<tr><td colspan="5" class="empty-state">No matching logs found.</td></tr>';
+      return;
+    }
+
+    logsBody.innerHTML = logs.map(log => `
+      <tr class="log-row" data-id="${log.id}">
+        <td class="corr-id"><code>${log.correlationId}</code></td>
+        <td class="timestamp">${new Date(log.timestamp).toLocaleString()}</td>
+        <td>
+          <span class="method-tag">${log.method}</span>
+          <span class="path-text">${log.path}</span>
+        </td>
+        <td class="msg-cell">${log.message.substring(0, 60)}${log.message.length > 60 ? '...' : ''}</td>
+        <td class="text-right">
+          <button class="view-log-btn btn-sm" data-id="${log.id}">View Details</button>
+        </td>
+      </tr>
+    `).join('');
+
+    attachListeners();
+  }
+
+  function attachListeners() {
+    document.querySelectorAll('.view-log-btn').forEach(btn => {
+      btn.addEventListener('click', () => showDetail((btn as HTMLElement).dataset.id!));
+    });
+  }
+
+  async function showDetail(id: string) {
+    try {
+      const res = await fetch(`/api/admin/error-logs/${id}`);
+      const log = await res.json();
+      
+      document.getElementById('modalCorrId')!.textContent = log.correlationId;
+      document.getElementById('modalTimestamp')!.textContent = new Date(log.timestamp).toLocaleString();
+      document.getElementById('modalMessage')!.textContent = log.message;
+      document.getElementById('modalPath')!.textContent = log.path;
+      document.getElementById('modalMethod')!.textContent = log.method;
+      document.getElementById('modalUA')!.textContent = log.userAgent || 'Unknown';
+      document.getElementById('modalStack')!.textContent = log.stack || 'No stack trace available';
+      document.getElementById('modalMetadata')!.textContent = JSON.stringify(log.metadata, null, 2);
+      
+      logModal!.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    } catch (err) {
+      console.error('Failed to load log detail', err);
+    }
+  }
+
+  function updatePagination(total: number) {
+    const info = document.getElementById('paginationInfo');
+    const prev = document.getElementById('prevPage') as HTMLButtonElement;
+    const next = document.getElementById('nextPage') as HTMLButtonElement;
+    
+    const from = currentPage * limit + 1;
+    const to = Math.min((currentPage + 1) * limit, total);
+    
+    if (info) info.textContent = total > 0 ? `Showing ${from} to ${to} of ${total} errors` : 'No errors found';
+    if (prev) prev.disabled = currentPage === 0;
+    if (next) next.disabled = to >= total;
+  }
+
+  document.getElementById('applyFilters')?.addEventListener('click', () => {
+    currentPage = 0;
+    fetchLogs();
+  });
+
+  document.getElementById('clearFilters')?.addEventListener('click', () => {
+    (document.getElementById('filterError') as HTMLInputElement).value = '';
+    (document.getElementById('filterPath') as HTMLInputElement).value = '';
+    (document.getElementById('filterDateFrom') as HTMLInputElement).value = '';
+    (document.getElementById('filterDateTo') as HTMLInputElement).value = '';
+    currentPage = 0;
+    fetchLogs();
+  });
+
+  document.getElementById('prevPage')?.addEventListener('click', () => {
+    if (currentPage > 0) {
+      currentPage--;
+      fetchLogs();
+    }
+  });
+
+  document.getElementById('nextPage')?.addEventListener('click', () => {
+    currentPage++;
+    fetchLogs();
+  });
+
+  closeModal?.addEventListener('click', () => {
+    logModal!.classList.add('hidden');
+    document.body.style.overflow = '';
+  });
+
+  // Logout functionality
+  const logoutBtn = document.getElementById('logoutBtn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', async () => {
+      try {
+        const csrfTag = document.querySelector('meta[name="csrf-token"]');
+        const csrfToken = csrfTag ? csrfTag.getAttribute('content') : '';
+        
+        const response = await fetch('/admin/logout', { 
+          method: 'POST',
+          headers: { 
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRF-Token': csrfToken || ''
+          }
+        });
+        
+        if (response.ok) {
+          window.location.href = '/admin/login';
+        } else {
+          alert('We were unable to log you out. Please try again.');
+        }
+      } catch (err) {
+        console.error('Logout failed', err);
+        alert('We were unable to log you out. Please try again.');
+      }
+    });
+  }
+
+  // Initial attachment
+  attachListeners();
+</script>
+
+<style>
+  .no-padding { padding: 0; }
+  .overflow-hidden { overflow: hidden; }
+
+  .filter-toolbar { padding: 1.5rem; }
+  .filter-row { display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap; }
+  .filter-item { display: flex; flex-direction: column; gap: 0.5rem; flex: 1; min-width: 200px; }
+  .filter-item label { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+  .admin-input { padding: 0.6rem; border: 1px solid var(--glass-border); border-radius: 8px; background: var(--glass-bg); color: var(--text-main); font-family: inherit; }
+  
+  .filter-actions { display: flex; gap: 0.5rem; }
+
+  .logs-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+
+  .logs-table th {
+    padding: 1.25rem 1.5rem;
+    background: rgba(0,0,0,0.01);
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--glass-border);
+    text-align: left;
+  }
+
+  .logs-table td {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--glass-border);
+    vertical-align: middle;
+  }
+
+  .corr-id code { background: var(--glass-border); padding: 0.2rem 0.4rem; border-radius: 4px; font-weight: 700; color: var(--tech-blue); }
+  .method-tag { font-size: 0.7rem; font-weight: 800; padding: 0.2rem 0.4rem; background: var(--accent-graphite); color: white; border-radius: 4px; margin-right: 0.5rem; }
+  .path-text { color: var(--text-muted); font-family: monospace; }
+  .msg-cell { color: var(--text-main); font-weight: 500; }
+
+  .btn-primary-sm { padding: 0.6rem 1.2rem; background: var(--tech-blue); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+  .btn-outline-sm { padding: 0.6rem 1.2rem; border: 1px solid var(--glass-border); background: transparent; border-radius: 8px; color: var(--text-main); cursor: pointer; }
+
+  .btn-sm { padding: 0.4rem 0.8rem; border-radius: 6px; border: 1px solid var(--glass-border); background: var(--glass-bg); cursor: pointer; font-size: 0.85rem; }
+  .btn-sm:hover { color: var(--tech-blue); border-color: var(--tech-blue); }
+
+  .text-right { text-align: right; }
+  .empty-state { text-align: center; padding: 4rem !important; color: var(--text-muted); }
+
+  /* Modal Styles */
+  .detail-section h3 { font-size: 0.8rem; text-transform: uppercase; color: var(--tech-blue); margin-bottom: 0.75rem; }
+  .error-msg-box { padding: 1rem; background: rgba(239, 68, 68, 0.05); border-left: 4px solid #ef4444; color: #ef4444; font-weight: 700; border-radius: 4px; }
+  .stack-box, .meta-box { background: #0f172a; color: #94a3b8; padding: 1rem; border-radius: 8px; font-size: 0.8rem; overflow-x: auto; max-height: 300px; }
+  
+  .detail-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+  .detail-item label { display: block; font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.25rem; }
+  .detail-item div { font-weight: 600; color: var(--text-main); }
+
+  @media (max-width: 900px) {
+    .detail-grid { grid-template-columns: 1fr; }
+    .filter-item { min-width: 100%; }
+  }
+</style>

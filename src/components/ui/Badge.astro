@@ -1,0 +1,68 @@
+---
+interface Props {
+  variant?: 'unread' | 'read' | 'archived' | 'neutral';
+  class?: string;
+}
+
+const { variant = 'neutral', class: className = '' } = Astro.props;
+
+const variantClasses = {
+  unread: 'badge-unread',
+  read: 'badge-read',
+  archived: 'badge-archived',
+  neutral: 'badge-neutral'
+};
+---
+
+<span class={`badge ${variantClasses[variant]} ${className}`}>
+  <slot />
+</span>
+
+<style>
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 99px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+
+  .badge-unread { 
+    background: rgba(30, 168, 236, 0.15); 
+    color: #0284c7; 
+  }
+  
+  :global(.dark) .badge-unread {
+    background: rgba(30, 168, 236, 0.2);
+    color: #7dd3fc;
+  }
+
+  .badge-read { 
+    background: rgba(100, 116, 139, 0.1); 
+    color: #475569; 
+  }
+
+  :global(.dark) .badge-read {
+    background: rgba(148, 163, 184, 0.1);
+    color: #cbd5e1;
+  }
+
+  .badge-archived { 
+    background: rgba(245, 158, 11, 0.1); 
+    color: #b45309; 
+  }
+
+  :global(.dark) .badge-archived {
+    background: rgba(251, 191, 36, 0.1);
+    color: #fcd34d;
+  }
+
+  .badge-neutral {
+    background: var(--glass-border);
+    color: var(--text-muted);
+  }
+</style>

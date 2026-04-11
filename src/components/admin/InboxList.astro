@@ -1,0 +1,714 @@
+---
+import type { MessageRecord } from '../../lib/messaging/messaging.model';
+import Badge from '../ui/Badge.astro';
+
+interface Props {
+  initialMessages: MessageRecord[];
+}
+
+const { initialMessages } = Astro.props;
+---
+
+<div class="inbox-list-container">
+  <div class="inbox-toolbar">
+    <div class="filter-group glass-panel-sm">
+      <button class="filter-btn active" data-status="all">All</button>
+      <button class="filter-btn" data-status="unread">Unread</button>
+      <button class="filter-btn" data-status="read">Read</button>
+      <button class="filter-btn" data-status="archived">Archived</button>
+    </div>
+    <div class="search-group">
+      <div class="search-input-wrapper">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" id="inboxSearch" placeholder="Search sender or message..." class="search-input" />
+      </div>
+    </div>
+  </div>
+
+  <div class="inbox-view glass-panel">
+    <!-- Desktop Table View -->
+    <div class="table-container desktop-only">
+      <table class="inbox-table">
+        <thead>
+          <tr>
+            <th class="sortable" data-sort="timestamp">Date <span class="sort-indicator" id="sort-timestamp">↓</span></th>
+            <th class="sortable" data-sort="sender_name">Sender <span class="sort-indicator" id="sort-sender_name"></span></th>
+            <th>Subject / Preview</th>
+            <th class="sortable" data-sort="status">Status <span class="sort-indicator" id="sort-status"></span></th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="inboxBody">
+          <!-- Rows will be injected by script -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Mobile Card View -->
+    <div id="inboxGrid" class="mobile-only message-grid">
+      <!-- Cards will be injected by script -->
+    </div>
+
+    <div id="emptyState" class="empty-state hidden">
+      <div class="empty-icon">📂</div>
+      <h3>No messages found</h3>
+      <p>We couldn't find any messages matching your current filters.</p>
+    </div>
+  </div>
+
+  <div class="pagination-footer">
+    <div class="pagination-stats" id="paginationInfo">
+      Showing 0 to 0 of 0 entries
+    </div>
+    <div class="pagination-controls" id="paginationButtons">
+      <!-- Page buttons injected by script -->
+    </div>
+  </div>
+</div>
+
+<!-- Template for list row -->
+<template id="messageRowTemplate">
+  <tr class="message-row">
+    <td class="col-date"></td>
+    <td class="col-sender">
+      <div class="sender-info">
+        <span class="sender-name"></span>
+        <span class="sender-email"></span>
+      </div>
+    </td>
+    <td class="col-preview">
+      <div class="message-preview"></div>
+    </td>
+    <td class="col-status">
+      <span class="status-badge"></span>
+    </td>
+    <td class="col-actions text-right">
+      <div class="action-group">
+        <button class="btn-icon view-btn" title="View Message">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        </button>
+        <button class="btn-icon archive-btn" title="Archive/Restore">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="archive-icon"><polyline points="21 8 21 21 3 21 3 8"></polyline><rect x="1" y="3" width="22" height="5"></rect><line x1="10" y1="12" x2="14" y2="12"></line></svg>
+        </button>
+        <button class="btn-icon delete-btn danger" title="Delete">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+        </button>
+      </div>
+    </td>
+  </tr>
+</template>
+
+<!-- Template for mobile card -->
+<template id="messageCardTemplate">
+  <div class="message-card">
+    <div class="card-header">
+      <div class="card-sender">
+        <span class="sender-name"></span>
+        <span class="card-date"></span>
+      </div>
+      <span class="status-badge"></span>
+    </div>
+    <div class="card-body">
+      <div class="message-preview"></div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-outline-sm view-btn">View</button>
+      <div class="card-actions">
+        <button class="btn-icon-sm archive-btn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"></polyline><rect x="1" y="3" width="22" height="5"></rect><line x1="10" y1="12" x2="14" y2="12"></line></svg></button>
+        <button class="btn-icon-sm delete-btn danger"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script define:vars={{ initialMessages }}>
+  let allMessages = [...initialMessages];
+  let filteredMessages = [...allMessages];
+  let currentPage = 1;
+  const itemsPerPage = 8;
+  let currentSort = { key: 'timestamp', order: 'desc' };
+  let currentStatusFilter = 'all';
+  let currentSearch = '';
+
+  const inboxBody = document.getElementById('inboxBody');
+  const inboxGrid = document.getElementById('inboxGrid');
+  const emptyState = document.getElementById('emptyState');
+  const paginationInfo = document.getElementById('paginationInfo');
+  const paginationButtons = document.getElementById('paginationButtons');
+  const searchInput = document.getElementById('inboxSearch');
+  
+  const rowTemplate = document.getElementById('messageRowTemplate');
+  const cardTemplate = document.getElementById('messageCardTemplate');
+
+  function render() {
+    // 1. Sort
+    filteredMessages.sort((a, b) => {
+      let valA = a[currentSort.key];
+      let valB = b[currentSort.key];
+      
+      if (currentSort.key === 'timestamp') {
+        valA = new Date(valA).getTime();
+        valB = new Date(valB).getTime();
+      } else {
+        valA = String(valA).toLowerCase();
+        valB = String(valB).toLowerCase();
+      }
+
+      if (valA < valB) return currentSort.order === 'asc' ? -1 : 1;
+      if (valA > valB) return currentSort.order === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+    // 2. Pagination
+    const totalItems = filteredMessages.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+    if (currentPage > totalPages) currentPage = totalPages;
+    
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = Math.min(start + itemsPerPage, totalItems);
+    const pageItems = filteredMessages.slice(start, end);
+
+    // 3. Clear existing
+    inboxBody.innerHTML = '';
+    inboxGrid.innerHTML = '';
+
+    if (totalItems === 0) {
+      emptyState.classList.remove('hidden');
+    } else {
+      emptyState.classList.add('hidden');
+      pageItems.forEach(msg => {
+        // Desktop Row
+        const row = rowTemplate.content.cloneNode(true).querySelector('tr');
+        row.classList.add(msg.status);
+        row.querySelector('.col-date').textContent = formatDate(msg.timestamp);
+        row.querySelector('.sender-name').textContent = msg.sender_name;
+        row.querySelector('.sender-email').textContent = msg.sender_email;
+        row.querySelector('.message-preview').textContent = msg.message_body.substring(0, 100) + (msg.message_body.length > 100 ? '...' : '');
+        
+        const badge = row.querySelector('.status-badge');
+        badge.textContent = msg.status;
+        badge.className = `status-badge badge-${msg.status}`;
+        
+        setupActions(row, msg);
+        inboxBody.appendChild(row);
+
+        // Mobile Card
+        const card = cardTemplate.content.cloneNode(true).querySelector('.message-card');
+        card.classList.add(msg.status);
+        card.querySelector('.sender-name').textContent = msg.sender_name;
+        card.querySelector('.card-date').textContent = formatDate(msg.timestamp, true);
+        card.querySelector('.message-preview').textContent = msg.message_body.substring(0, 80) + (msg.message_body.length > 80 ? '...' : '');
+        
+        const cBadge = card.querySelector('.status-badge');
+        cBadge.textContent = msg.status;
+        cBadge.className = `status-badge badge-${msg.status}`;
+        
+        setupActions(card, msg);
+        inboxGrid.appendChild(card);
+      });
+    }
+
+    renderPagination(totalPages, start + 1, end, totalItems);
+    updateSortIndicators();
+  }
+
+  function setupActions(container, msg) {
+    container.querySelector('.view-btn').onclick = () => window.dispatchEvent(new CustomEvent('view-message', { detail: msg }));
+    container.querySelector('.archive-btn').onclick = () => updateStatus(msg.id, msg.status === 'archived' ? 'read' : 'archived');
+    container.querySelector('.delete-btn').onclick = () => deleteMsg(msg.id);
+    
+    if (msg.status === 'archived' && container.querySelector('.archive-icon')) {
+       // Could change icon to restore icon
+    }
+  }
+
+  function formatDate(ts, short = false) {
+    const d = new Date(ts);
+    if (short) return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    return d.toLocaleDateString(undefined, { 
+      month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' 
+    });
+  }
+
+  function renderPagination(totalPages, start, end, total) {
+    paginationInfo.textContent = total > 0 ? `Showing ${start} to ${end} of ${total} entries` : 'No entries to show';
+    
+    paginationButtons.innerHTML = '';
+    
+    // Prev
+    const prev = createPageBtn('←', () => { if (currentPage > 1) { currentPage--; render(); } }, currentPage === 1);
+    paginationButtons.appendChild(prev);
+
+    // Page numbers
+    const maxVisible = 5;
+    let startPage = Math.max(1, currentPage - 2);
+    let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+    
+    if (endPage - startPage < maxVisible - 1) {
+      startPage = Math.max(1, endPage - maxVisible + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+        const btn = createPageBtn(i, () => { currentPage = i; render(); }, false, i === currentPage);
+        paginationButtons.appendChild(btn);
+    }
+
+    // Next
+    const next = createPageBtn('→', () => { if (currentPage < totalPages) { currentPage++; render(); } }, currentPage === totalPages);
+    paginationButtons.appendChild(next);
+  }
+
+  function createPageBtn(text, onClick, disabled = false, active = false) {
+    const btn = document.createElement('button');
+    btn.className = `page-btn ${active ? 'active' : ''}`;
+    btn.textContent = text;
+    btn.disabled = disabled;
+    btn.onclick = onClick;
+    return btn;
+  }
+
+  function updateSortIndicators() {
+    document.querySelectorAll('.sort-indicator').forEach(el => el.textContent = '');
+    const indicator = document.getElementById(`sort-${currentSort.key}`);
+    if (indicator) {
+      indicator.textContent = currentSort.order === 'asc' ? '↑' : '↓';
+    }
+  }
+
+  function applyFilters() {
+    filteredMessages = allMessages.filter(msg => {
+      const matchStatus = currentStatusFilter === 'all' || msg.status === currentStatusFilter;
+      const matchSearch = msg.sender_name.toLowerCase().includes(currentSearch.toLowerCase()) || 
+                          msg.sender_email.toLowerCase().includes(currentSearch.toLowerCase()) ||
+                          msg.message_body.toLowerCase().includes(currentSearch.toLowerCase());
+      return matchStatus && matchSearch;
+    });
+    currentPage = 1;
+    render();
+  }
+
+  async function updateStatus(id, newStatus) {
+    try {
+      const resp = await fetch(`/api/messages/${id}`, {
+        method: 'PATCH',
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+        },
+        body: JSON.stringify({ status: newStatus })
+      });
+      if (resp.ok) {
+        const updated = await resp.json();
+        const idx = allMessages.findIndex(m => m.id === id);
+        if (idx !== -1) {
+          allMessages[idx] = updated;
+          applyFilters();
+        }
+      }
+    } catch (err) {
+      console.error('Update failed', err);
+    }
+  }
+
+  async function deleteMsg(id) {
+    if (!confirm('Are you sure you want to permanently delete this message?')) return;
+    try {
+      const resp = await fetch(`/api/messages/${id}`, {
+        method: 'DELETE',
+        headers: { 
+          'X-Requested-With': 'XMLHttpRequest',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+        }
+      });
+      if (resp.ok) {
+        allMessages = allMessages.filter(m => m.id !== id);
+        applyFilters();
+      }
+    } catch (err) {
+      console.error('Delete failed', err);
+    }
+  }
+
+  // Event Listeners
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.onclick = (e) => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      e.target.classList.add('active');
+      currentStatusFilter = e.target.dataset.status;
+      applyFilters();
+    };
+  });
+
+  searchInput.oninput = (e) => {
+    currentSearch = e.target.value;
+    applyFilters();
+  };
+
+  document.querySelectorAll('.sortable').forEach(th => {
+    th.onclick = () => {
+      const key = th.dataset.sort;
+      if (currentSort.key === key) {
+        currentSort.order = currentSort.order === 'asc' ? 'desc' : 'asc';
+      } else {
+        currentSort.key = key;
+        currentSort.order = 'asc';
+      }
+      render();
+    };
+  });
+
+  // Listen for external refreshes
+  window.addEventListener('refresh-inbox', async () => {
+    // Better to re-fetch occasionally, but for now just refresh UI
+    // In a real scenario, we might want to trigger a fetch() if messages were updated elsewhere
+    render();
+  });
+
+  // Initial render
+  render();
+</script>
+
+<style>
+  .inbox-list-container {
+    width: 100%;
+  }
+
+  .inbox-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .glass-panel-sm {
+    background: var(--glass-bg);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--glass-border);
+    border-radius: 99px;
+    padding: 0.3rem;
+    display: flex;
+    gap: 0.2rem;
+  }
+
+  .filter-btn {
+    padding: 0.6rem 1.5rem;
+    border: none;
+    background: transparent;
+    border-radius: 99px;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--text-muted);
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+  }
+
+  .filter-btn:hover {
+    color: var(--text-main);
+  }
+
+  .filter-btn.active {
+    background: var(--tech-blue);
+    color: white;
+    box-shadow: 0 4px 10px rgba(30, 168, 236, 0.3);
+  }
+
+  .search-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 1.25rem;
+    color: var(--text-muted);
+    pointer-events: none;
+  }
+
+  .search-input {
+    padding: 0.75rem 1rem 0.75rem 3rem;
+    border-radius: 99px;
+    border: 1px solid var(--glass-border);
+    background: var(--glass-bg);
+    min-width: 320px;
+    font-family: inherit;
+    outline: none;
+    transition: all 0.2s ease;
+    color: var(--text-main);
+  }
+
+  .search-input:focus {
+    border-color: var(--tech-blue);
+    background: white;
+    box-shadow: 0 0 0 4px rgba(30, 168, 236, 0.1);
+  }
+
+  :global(.dark) .search-input:focus {
+    background: rgba(30, 41, 59, 0.9);
+  }
+
+  .inbox-view {
+    padding: 0;
+    overflow: hidden;
+    border-radius: 20px;
+  }
+
+  .table-container {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .inbox-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+  }
+
+  .inbox-table th {
+    text-align: left;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--glass-border);
+    color: var(--text-muted);
+    font-weight: 700;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: rgba(0,0,0,0.01);
+  }
+
+  .inbox-table th.sortable { cursor: pointer; user-select: none; }
+  .inbox-table th.sortable:hover { color: var(--tech-blue); }
+  
+  .sort-indicator {
+    display: inline-block;
+    width: 12px;
+    color: var(--tech-blue);
+    margin-left: 4px;
+  }
+
+  .inbox-table td {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--glass-border);
+    vertical-align: middle;
+  }
+
+  .message-row {
+     transition: background 0.2s ease;
+  }
+
+  .message-row:hover {
+    background: rgba(30, 168, 236, 0.02);
+  }
+
+  .message-row.unread {
+    background: rgba(30, 168, 236, 0.04);
+  }
+
+  .sender-info { display: flex; flex-direction: column; }
+  .sender-name { font-weight: 700; color: var(--text-main); }
+  .sender-email { font-size: 0.8rem; color: var(--text-muted); }
+
+  .message-preview {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    max-width: 450px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .message-row.unread .message-preview {
+    color: var(--text-main);
+    font-weight: 500;
+  }
+
+  .status-badge {
+    display: inline-flex;
+    padding: 0.25rem 0.75rem;
+    border-radius: 99px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  .badge-unread { background: rgba(30, 168, 236, 0.15); color: #0284c7; }
+  .badge-read { background: rgba(100, 116, 139, 0.1); color: #475569; }
+  .badge-archived { background: rgba(245, 158, 11, 0.1); color: #b45309; }
+
+  .action-group {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+  }
+
+  .btn-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 1px solid var(--glass-border);
+    background: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    transition: all 0.2s ease;
+  }
+
+  :global(.dark) .btn-icon { background: rgba(30, 41, 59, 0.5); }
+
+  .btn-icon:hover {
+    border-color: var(--tech-blue);
+    color: var(--tech-blue);
+    background: rgba(30, 168, 236, 0.05);
+    transform: translateY(-2px);
+  }
+
+  .btn-icon.danger:hover {
+    border-color: #ef4444;
+    color: #ef4444;
+    background: #fef2f2;
+  }
+
+  /* Pagination */
+  .pagination-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .pagination-stats {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+
+  .pagination-controls {
+    display: flex;
+    gap: 0.4rem;
+  }
+
+  .page-btn {
+    min-width: 36px;
+    height: 36px;
+    padding: 0 0.5rem;
+    border-radius: 10px;
+    border: 1px solid var(--glass-border);
+    background: var(--glass-bg);
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--text-main);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .page-btn:hover:not(:disabled) {
+    border-color: var(--tech-blue);
+    color: var(--tech-blue);
+  }
+
+  .page-btn.active {
+    background: var(--tech-blue);
+    color: white;
+    border-color: var(--tech-blue);
+  }
+
+  .page-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .empty-state {
+    padding: 5rem 2rem;
+    text-align: center;
+    color: var(--text-muted);
+  }
+
+  .empty-icon { font-size: 3rem; margin-bottom: 1rem; }
+  .empty-state h3 { color: var(--text-main); margin-bottom: 0.5rem; }
+
+  .desktop-only { display: block; }
+  .mobile-only { display: none; }
+
+  /* Mobile Grid View */
+  .message-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .message-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 1.25rem;
+    transition: transform 0.2s ease;
+  }
+
+  .message-card.unread { border-left: 4px solid var(--tech-blue); }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+
+  .card-sender { display: flex; flex-direction: column; }
+  .card-date { font-size: 0.75rem; color: var(--text-muted); }
+  
+  .card-body { margin-bottom: 1.25rem; }
+  .card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .card-actions { display: flex; gap: 0.5rem; }
+
+  .btn-outline-sm {
+    padding: 0.4rem 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--glass-border);
+    background: transparent;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--text-main);
+  }
+
+  .btn-icon-sm {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--glass-border);
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+  }
+
+  @media (max-width: 1024px) {
+    .desktop-only { display: none; }
+    .mobile-only { display: block; }
+    .inbox-toolbar { flex-direction: column; align-items: stretch; }
+    .search-input { min-width: 0; width: 100%; }
+    .filter-group { overflow-x: auto; white-space: nowrap; }
+  }
+
+  @media (max-width: 640px) {
+    .pagination-footer { flex-direction: column; text-align: center; }
+  }
+
+  .text-right { text-align: right; }
+</style>

@@ -59,7 +59,7 @@ describe('Contact Modal Functionality & Integration', () => {
     // Assert required children presence
     expect(form.querySelector('input[name="name"]')).not.toBeNull();
     expect(form.querySelector('input[name="email"]')).not.toBeNull();
-    expect(form.querySelector('input[name="honeypot"]')).not.toBeNull(); // Spam resilience
+    expect(form.querySelector('input[name="website"]')).not.toBeNull(); // Spam resilience (honeypot)
     expect(form.querySelector('textarea[name="message"]')).not.toBeNull();
     expect(form.querySelector('button[type="submit"]')).not.toBeNull();
   });

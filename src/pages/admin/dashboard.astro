@@ -1,0 +1,110 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import InboxList from '../../components/admin/InboxList.astro';
+import InboxDetail from '../../components/admin/InboxDetail.astro';
+import ThemeToggle from '../../components/admin/ThemeToggle.astro';
+import { requireAdmin } from '../../lib/auth/auth.controller';
+import { listMessages } from '../../lib/messaging/messaging.service';
+import '../../styles/admin.css';
+
+export const prerender = false;
+
+// Check auth server-side
+const { session, error } = requireAdmin(Astro.locals);
+
+if (error || !session) {
+  return Astro.redirect('/admin/login');
+}
+
+// Fetch messages for initial render
+const initialMessages = listMessages();
+---
+
+<Layout 
+  title="Inbox | Admin Dashboard" 
+  description="MacDaly.com Message Management."
+  fluid={true}
+  hideHeader={true}
+  hideFooter={true}
+>
+  <div class="admin-layout">
+    <header class="admin-header">
+      <div class="logo">MacDaly<span>.Admin</span></div>
+      
+      <div class="header-actions">
+        <a href="/admin/logs" class="btn-link">Audit Logs</a>
+        <a href="/admin/error-logs" class="btn-link">System Logs</a>
+        <a href="/admin/export" class="btn-link">Export</a>
+        <ThemeToggle />
+        <button id="logoutBtn" class="btn-outline">Logout</button>
+      </div>
+    </header>
+
+    <main class="admin-content">
+      <div class="dashboard-intro">
+        <h1>Inbox</h1>
+        <p class="subtitle">Securely managing your portfolio inquiries.</p>
+      </div>
+      
+      <div class="dashboard-main mt-8">
+        <InboxList {initialMessages} />
+      </div>
+    </main>
+  </div>
+
+  <InboxDetail />
+</Layout>
+
+<script>
+  const logoutBtn = document.getElementById('logoutBtn');
+  
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', async () => {
+      try {
+        const csrfTag = document.querySelector('meta[name="csrf-token"]');
+        const csrfToken = csrfTag ? csrfTag.getAttribute('content') : '';
+        
+        const response = await fetch('/admin/logout', { 
+          method: 'POST',
+          headers: { 
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRF-Token': csrfToken || ''
+          }
+        });
+        
+        if (response.ok) {
+          window.location.href = '/admin/login';
+        } else {
+          alert('We were unable to log you out. Please try again.');
+        }
+      } catch (err) {
+        console.error('Logout failed', err);
+        alert('We were unable to log you out. Please try again.');
+      }
+    });
+  }
+</script>
+
+<style>
+  .dashboard-container {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    min-height: 100vh;
+  }
+
+  .dashboard-content {
+    animation: fadeIn 0.5s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 768px) {
+    .dashboard-container { padding: 1rem; }
+    .dashboard-header { flex-direction: column; gap: 1.5rem; }
+    .dashboard-header h1 { font-size: 2rem; }
+  }
+</style>

@@ -1,0 +1,260 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ThemeToggle from '../../components/admin/ThemeToggle.astro';
+import { requireAdmin } from '../../lib/auth/auth.controller';
+import { listMessages } from '../../lib/messaging/messaging.service';
+import '../../styles/admin.css';
+
+export const prerender = false;
+
+// Check auth server-side
+const { session, error } = requireAdmin(Astro.locals);
+
+if (error || !session) {
+  return Astro.redirect('/admin/login');
+}
+
+const messages = listMessages();
+const stats = {
+  total: messages.length,
+  unread: messages.filter(m => m.status === 'unread').length,
+  lastRecord: messages.length > 0 ? new Date(messages[messages.length - 1].timestamp).toLocaleDateString() : 'N/A'
+};
+---
+
+<Layout 
+  title="Data Export | Admin Dashboard" 
+  description="Export and backup your message data."
+  fluid={true}
+  hideHeader={true}
+  hideFooter={true}
+>
+  <div class="admin-layout">
+    <header class="admin-header">
+      <div class="logo">MacDaly<span>.Admin</span></div>
+      
+      <div class="header-actions">
+        <a href="/admin/dashboard" class="btn-link">← Inbox</a>
+        <a href="/admin/logs" class="btn-link">Audit Logs</a>
+        <ThemeToggle />
+        <button id="logoutBtn" class="btn-outline">Logout</button>
+      </div>
+    </header>
+
+    <main class="admin-content">
+      <div class="dashboard-intro">
+        <h1>Data Export</h1>
+        <p class="subtitle">Securely download or back up your messaging database.</p>
+      </div>
+
+      <div class="export-grid mt-8">
+        <!-- Stats Card -->
+        <div class="card glass-panel stats-card">
+          <h3>Database Overview</h3>
+          <div class="stat-list">
+            <div class="stat-item">
+              <span class="label">Total Messages</span>
+              <span class="value">{stats.total}</span>
+            </div>
+            <div class="stat-item">
+              <span class="label">Unread</span>
+              <span class="value">{stats.unread}</span>
+            </div>
+            <div class="stat-item">
+              <span class="label">Last Received</span>
+              <span class="value">{stats.lastRecord}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Export Actions Card -->
+        <div class="card glass-panel actions-card">
+          <h3>Generate Export</h3>
+          <p class="text-muted">Choose a format to download your entire message history.</p>
+          
+          <div class="button-group mt-8">
+            <a href="/api/admin/messages/export?format=json" class="btn-export json" download>
+              <div class="export-icon">{}</div>
+              <div class="export-label">
+                <strong>JSON Format</strong>
+                <span>Best for data migration</span>
+              </div>
+            </a>
+            <a href="/api/admin/messages/export?format=csv" class="btn-export csv" download>
+              <div class="export-icon">田</div>
+              <div class="export-label">
+                <strong>CSV Format</strong>
+                <span>Best for Excel / Sheets</span>
+              </div>
+            </a>
+          </div>
+
+          <div class="security-note">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            <p>Exports contain personal information. Store these securely and comply with local data protection regulations.</p>
+          </div>
+        </div>
+
+        <!-- Backup Card -->
+        <div class="card glass-panel backup-card full-width">
+          <h3>Backups & Recovery</h3>
+          <p>System-level backups are managed via CLI for maximum reliability. Use these commands in your development environment:</p>
+          <div class="command-box">
+            <div class="command-line">
+              <span class="prompt">$</span>
+              <code>npm run backup</code>
+              <span class="description"># Saves messages.json to timestamped backup</span>
+            </div>
+            <div class="command-line">
+              <span class="prompt">$</span>
+              <code>npm run restore</code>
+              <span class="description"># Restores from selected backup file</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</Layout>
+
+<script>
+  const logoutBtn = document.getElementById('logoutBtn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', async () => {
+      try {
+        const csrfTag = document.querySelector('meta[name="csrf-token"]');
+        const csrfToken = csrfTag ? csrfTag.getAttribute('content') : '';
+        
+        const response = await fetch('/admin/logout', { 
+          method: 'POST',
+          headers: { 
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRF-Token': csrfToken || ''
+          }
+        });
+        
+        if (response.ok) {
+          window.location.href = '/admin/login';
+        } else {
+          alert('We were unable to log you out. Please try again.');
+        }
+      } catch (err) {
+        console.error('Logout failed', err);
+        alert('We were unable to log you out. Please try again.');
+      }
+    });
+  }
+</script>
+
+<style>
+  .export-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 2rem;
+  }
+
+  .stat-list {
+    margin-top: 1.5rem;
+  }
+
+  .stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--glass-border);
+  }
+
+  .stat-item:last-child { border-bottom: none; }
+
+  .stat-item .label { color: var(--text-muted); font-size: 0.9rem; }
+  .stat-item .value { font-weight: 800; font-size: 1.25rem; color: var(--tech-blue); }
+
+  .btn-export {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1.5rem;
+    border-radius: 16px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    transition: all 0.2s ease;
+  }
+
+  .btn-export:hover {
+    transform: translateY(-4px);
+    border-color: var(--tech-blue);
+    background: white;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  }
+
+  :global(.dark) .btn-export:hover {
+    background: rgba(30, 41, 59, 0.9);
+  }
+
+  .export-icon {
+    width: 48px;
+    height: 48px;
+    background: rgba(30, 168, 236, 0.1);
+    color: var(--tech-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    font-size: 1.5rem;
+    font-weight: 800;
+  }
+
+  .export-label { display: flex; flex-direction: column; }
+  .export-label strong { font-size: 1.1rem; color: var(--text-main); }
+  .export-label span { font-size: 0.85rem; color: var(--text-muted); }
+
+  .security-note {
+    margin-top: 2rem;
+    display: flex;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: rgba(245, 158, 11, 0.05);
+    border-radius: 12px;
+    color: #b45309;
+    font-size: 0.85rem;
+    line-height: 1.5;
+  }
+
+  :global(.dark) .security-note {
+    background: rgba(251, 191, 36, 0.05);
+    color: #fcd34d;
+  }
+
+  .full-width { grid-column: 1 / -1; }
+
+  .command-box {
+    margin-top: 1.5rem;
+    background: #0f172a;
+    padding: 1.5rem;
+    border-radius: 12px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .command-line {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 0.75rem;
+  }
+
+  .command-line:last-child { margin-bottom: 0; }
+
+  .prompt { color: var(--tech-blue); font-weight: 800; }
+  .command-line code { color: #f1f5f9; }
+  .description { color: #64748b; font-size: 0.85rem; }
+
+  @media (max-width: 1024px) {
+    .export-grid { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 640px) {
+    .button-group { display: flex; flex-direction: column; gap: 1rem; }
+    .command-line { flex-direction: column; align-items: flex-start; gap: 0.25rem; }
+  }
+</style>

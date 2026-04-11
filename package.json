@@ -10,6 +10,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
+    "backup": "tsx scripts/backup.ts",
+    "restore": "tsx scripts/restore.ts",
     "test": "vitest run",
     "sync": "lftp -c 'open -u $FTP_USER,$FTP_PASS $FTP_HOST; mirror -R dist/ public_html/'"
   },
