@@ -15,7 +15,7 @@ import {
 } from '../../../lib/messaging/index';
 import { requireAdmin } from '../../../lib/auth/auth.controller';
 
-export const prerender = false;
+export const prerender = true;
 
 export const GET: APIRoute = ({ locals, params }) => {
   const { error } = requireAdmin(locals);

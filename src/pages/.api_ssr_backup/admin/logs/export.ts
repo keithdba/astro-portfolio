@@ -8,7 +8,7 @@ import type { APIRoute } from 'astro';
 import { requireAdmin } from '../../../../lib/auth/auth.controller';
 import { exportLogsToCSV } from '../../../../lib/audit/audit.service';
 
-export const prerender = false;
+export const prerender = true;
 
 export const GET: APIRoute = async ({ locals }) => {
   const { error } = requireAdmin(locals);

@@ -9,7 +9,7 @@ import { requireAdmin } from '../../../../lib/auth/auth.controller';
 import { listMessages } from '../../../../lib/messaging/messaging.service';
 import { formatMessagesToCSV, formatMessagesToJSON } from '../../../../lib/messaging/export.service';
 
-export const prerender = false;
+export const prerender = true;
 
 export const GET: APIRoute = async ({ locals, url }) => {
   const { error } = requireAdmin(locals);

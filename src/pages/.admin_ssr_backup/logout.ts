@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { logoutAdmin } from '../../lib/auth/logout.controller';
 
-export const prerender = false;
+export const prerender = true;
 
 /**
  * POST /admin/logout

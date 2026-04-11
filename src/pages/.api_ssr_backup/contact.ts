@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-export const prerender = false;
+export const prerender = true;
 import nodemailer from 'nodemailer';
 import { z } from 'zod';
 import dotenv from 'dotenv';

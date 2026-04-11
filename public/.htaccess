@@ -23,9 +23,4 @@
   # Custom 404 Error Page
   # ErrorDocument 404 /404.html
 
-  # SSR Configuration
-  # Passenger is typically enabled via the cPanel UI, but this ensures fallback
-  PassengerEnabled on
-  PassengerAppType node
-  PassengerStartupFile app.js
 </IfModule>

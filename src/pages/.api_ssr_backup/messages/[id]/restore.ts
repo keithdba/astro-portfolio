@@ -8,7 +8,7 @@ import type { APIRoute } from 'astro';
 import { handleRestoreMessage } from '../../../../lib/messaging/index';
 import { requireAdmin } from '../../../../lib/auth/auth.controller';
 
-export const prerender = false;
+export const prerender = true;
 
 export const POST: APIRoute = async ({ request, locals, params }) => {
   const { error } = requireAdmin(locals);

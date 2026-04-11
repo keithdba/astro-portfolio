@@ -5,7 +5,7 @@ import { requireAdmin } from '../../lib/auth/auth.controller';
 import { listLogs } from '../../lib/audit/audit.service';
 import '../../styles/admin.css';
 
-export const prerender = false;
+export const prerender = true;
 
 // Check auth server-side
 const { session, error } = requireAdmin(Astro.locals);

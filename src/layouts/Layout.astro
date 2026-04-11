@@ -50,9 +50,7 @@ else if (isAuto) logoSrc = "/assets/branding/logo-auto.png";
 					<nav class="nav-links">
 						<a href="/pro" class={`nav-link ${currentPath.startsWith('/pro') ? 'active' : ''}`}>Professional</a>
 						<a href="/auto" class={`nav-link ${currentPath.startsWith('/auto') ? 'active' : ''}`}>Automotive</a>
-						<a href="/admin/dashboard" class={`nav-link ${currentPath.startsWith('/admin') ? 'active' : ''}`}>
-							{Astro.locals.session ? 'Dashboard' : 'Admin'}
-						</a>
+						<a href="/admin/dashboard" class={`nav-link ${currentPath.startsWith('/admin') ? 'active' : ''}`}>Admin</a>
 						<button id="contactModalBtn" class="btn-outline-nav cursor-pointer">Get In Touch</button>
 					</nav>
 				</header>
@@ -156,7 +154,7 @@ else if (isAuto) logoSrc = "/assets/branding/logo-auto.png";
             };
 
             try {
-              const response = await fetch('/api/messages', {
+              const response = await fetch('/contact.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),

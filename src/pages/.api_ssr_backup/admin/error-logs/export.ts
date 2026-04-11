@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-export const prerender = false;
+export const prerender = true;
 import { handleExportErrorLogs } from '../../../../lib/logging/logs.controller';
 import { requireAdmin } from '../../../../lib/auth/auth.controller';
 
