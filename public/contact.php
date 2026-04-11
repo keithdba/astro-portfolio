@@ -106,6 +106,29 @@ class RelaySMTP {
 }
 
 // --- 5. EXECUTE ---
+
+// 5a. Persist to MySQL (non-blocking — email sends regardless)
+try {
+    require_once __DIR__ . '/api/db.php';
+    $db = get_db();
+    $stmt = $db->prepare(
+        'INSERT INTO messages (sender_name, sender_email, body, status, ip_address, user_agent) VALUES (?, ?, ?, ?, ?, ?)'
+    );
+    $stmt->execute([
+        $name,
+        $email,
+        $message,
+        'unread',
+        $_SERVER['REMOTE_ADDR']     ?? null,
+        $_SERVER['HTTP_USER_AGENT'] ?? null,
+    ]);
+    debug_log("Message persisted to DB (id=" . $db->lastInsertId() . ").");
+} catch (Throwable $db_err) {
+    debug_log("DB persist warning: " . $db_err->getMessage());
+    // Non-fatal — continue to email relay
+}
+
+// 5b. Send via email relay
 try {
     $smtp = new RelaySMTP();
     $smtp->send(

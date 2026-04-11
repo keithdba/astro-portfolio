@@ -22,7 +22,8 @@ import {
 } from '../lib/auth/session.service';
 import { logoutAdmin } from '../lib/auth/logout.controller';
 import { handleLogin, handleRotatePassword } from '../lib/auth/auth.controller';
-import { csrfMiddleware } from '../../src/middleware/csrf';
+// NOTE: csrfMiddleware tests archived — CSRF is now enforced at the PHP layer.
+// import { csrfMiddleware } from '../../src/middleware/csrf';
 
 const DATA_DIR = path.resolve(process.cwd(), '.data');
 const ADMINS_FILE = path.join(DATA_DIR, 'admins.json');
@@ -150,7 +151,7 @@ describe('Admin Authentication & Session Lifecycle', () => {
       expect(verified).toBeUndefined();
     });
 
-    it('csrfMiddleware blocks requests without valid token', async () => {
+    it.skip('csrfMiddleware blocks requests without valid token (archived — now PHP layer)', async () => {
       const session = await createSession('admin-id', {});
       const req = new Request('https://example.com/admin/delete', {
         method: 'POST',
@@ -163,7 +164,7 @@ describe('Admin Authentication & Session Lifecycle', () => {
       expect(response.status).toBe(403);
     });
 
-    it('csrfMiddleware allows logout with stale token if origin matches', async () => {
+    it.skip('csrfMiddleware allows logout with stale token if origin matches (archived — now PHP layer)', async () => {
       const session = await createSession('admin-id', {});
       const req = new Request('https://example.com/admin/logout', {
         method: 'POST',
